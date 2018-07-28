@@ -48,7 +48,24 @@ ht10$areag_ocu <- as.numeric(ht10$areag_ocu)
 ht09$areag_ocu <- as.numeric(ht09$areag_ocu)
 
 
-
+## Join between HT09 and HT10
 ht <- full_join(ht09,ht10)
+ht11$num_hecho <- NULL
 
-oldNamesHT11 <- colnames()
+oldNamesHT11 <- colnames(ht11)
+newNamesHT11 <- c(oldNamesHT11[1], oldNamesHT11[2], oldNamesHT11[3], oldNamesHT11[4], oldNamesHT11[5], oldNamesHT11[6], oldNamesHT11[7],
+                  oldNamesHT11[8], oldNamesHT11[9], oldNamesHT11[10], "grupo_eda_pil", oldNamesHT11[12], oldNamesHT11[13],
+                  "tipo_veh", "marca_veh", "color_veh", "modelo_veh", "causa_acc")
+ht11 <- ht11 %>% rename_at(vars(oldNamesHT11), ~ newNamesHT11)
+
+
+
+ht11$hora_ocu <- as.character(ht11$hora_ocu)
+ht11$areag_ocu <- as.numeric(ht11$areag_ocu)
+ht11$edad_pil <- as.numeric(ht11$edad_pil)
+ht11$zona_ocu <- as.numeric(ht11$zona_ocu)
+
+## Join between HT and HT11
+ht <- full_join(ht, ht11)
+
+
