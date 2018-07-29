@@ -320,3 +320,14 @@ write.csv(ht, "Results/ht09_17.csv", row.names = F)
 head(ht)
 ```
 
+Fallecidos y Lesionados
+=====================================
+FOO
+
+Vehiculos Involucrados
+=====================================
+FOO
+
+Base Unificada INE 2009-2017
+=====================================
+FOO
