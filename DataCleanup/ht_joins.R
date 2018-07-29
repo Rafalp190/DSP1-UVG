@@ -12,15 +12,15 @@ require("dplyr")
 
 
 ## Read all HT dataframes by year
-ht09 <- read.csv("Data/09HT.csv")
-ht10 <- read.csv("Data/10HT.csv")
-ht11 <- read.csv("Data/11HT.csv")
-ht12 <- read.csv("Data/12HT.csv")
-ht13 <- read.csv("Data/13HT.csv")
-ht14 <- read.csv("Data/14HT.csv")
-ht15 <- read.csv("Data/15HT.csv")
-ht16 <- read.csv("Data/16HT.csv")
-ht17 <- read.csv("Data/17HT.csv")
+ht09 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09HT.csv")
+ht10 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10HT.csv")
+ht11 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/11HT.csv")
+ht12 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/12HT.csv")
+ht13 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/13HT.csv")
+ht14 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/14HT.csv")
+ht15 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/15HT.csv")
+ht16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16HT.csv")
+ht17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17HT.csv")
 
 ## Determine ColNames to use for Joins
 colnames(ht09)
@@ -267,3 +267,6 @@ ht17$marca_veh <- mapvalues(ht17$marca_veh, from=999, to="Ignorado")
 
 ## Join between HT and HT17
 ht <- full_join(ht, ht17)
+rm(ht17)
+
+write.csv(ht, "Results/ht09_17.csv", row.names = F)
