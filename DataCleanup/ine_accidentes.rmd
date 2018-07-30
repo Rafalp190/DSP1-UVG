@@ -1,16 +1,47 @@
+---
+title: "INE Accidentes Automovilísticos"
+author: "Rafael León, Julio Barahona y Alejandro Vásquez"
+date: "July 29, 2018"
+output: flexdashboard::flex_dashboard
+---
 
-#   _    _ _______ 
-#  | |  | |__   __|
-#  | |__| |  | |   
-#  |  __  |  | |   
-#  | |  | |  | |   
-#  |_|  |_|  |_|   
-  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 # Load Packages
 require("plyr")
 require("dplyr")
+if (!require("flexdashboard"))    {install.packages("flexdashboard");   library(flexdashboard)}
+
+```
+Overview
+=====================================  
+
+### Descripción 
+El [instituto nacional de estadística de Guatemala](https://www.ine.gob.gt/), provee una base de datos de Accidentes de tránsito desde el año 2009 al año 2017 ([consultado: Julio, 2018)](https://www.ine.gob.gt/index.php/estadisticas-continuas/accidentes-de-transito)). Como parte de su módulo de estadísticas continuas. Esta base de datos presenta información de Hechos de Tránsito (**HT**), Vehiculos involucrados (**VI**) y lesionados y fallecidos (**FL**). Sin embargo esta información se encuentra fragmentada en distintos documentos que han sido agregados anualmente. Estos documentos se encuentran en distintos formatos y contienen variables diferentes. El objetivo primario de este acercamiento de limpieza de bases de datos es la unificación de los tres tipos de bases de datos para obtener una base centralizada facil de acceder para utilizar en futuros análisis. A continuación se desglosa el procedimiento que se siguió para realizar esta unificación, con justificaciones para las variables descartadas y las codificaciones realizadas. 
 
 
+### Observación Inicial
+Se realizó una observación inicial de las bases de datos para encontrar los puntos importantes a tratar para facilitar la unificación. 
+Después de descargar los archivos observamos varios problemas que hay que tratar para limpiar los datos. A continuación, se lista cada uno de ellos.  
+
+- Todos los archivos de los distintos años están separados. 
+- El primer problema que observamos es que los datos están en distintos formatos (SPSS, xlsx y xls).
+- Nombres de variables con tildes y caracteres especiales.
+- Variables categóricas codificadas con variables numéricos al igual que los valores faltantes
+- Bases de datos de 2009 con nombres diferentes a las bases de datos de años más nuevos (diferente formato).
+- Variables binarias codificadas con 1,2
+- Valores faltantes en todas las columnas
+- Columnas de Día/mes/semana/fecha separadas  
+
+Para facilitar el proceso de acceso a la información se decidió convertir todos los archivos a formato CSV. Despues se procedió a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la información de una forma constante mientras exista el repositorio. Se decidió tomar este paso para lidiar con un error de programación de la página del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatización de la descarga imposible. El primer *snippet* de código muestra como se descargaron los archivos del repositorio de github.  
+
+
+Hechos de Tránsito
+=====================================================================
+
+Para facilitar el proceso de acceso a la información se decidió convertir todos los archivos a formato CSV. Despues se procedió a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la información de una forma constante mientras exista el repositorio. Se decidió tomar este paso para lidiar con un error de programación de la página del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatización de la descarga imposible. El primer *snippet* de código muestra como se descargaron los archivos del repositorio de github.  
+
+```{r downloads}
 ## Read all HT dataframes by year
 ht09 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09HT.csv")
 ht10 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10HT.csv")
@@ -21,7 +52,10 @@ ht14 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/Da
 ht15 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/15HT.csv")
 ht16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16HT.csv")
 ht17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17HT.csv")
+```
 
+Después de descargar las bases de datos se procedió a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de códigos](https://github.com/Rafalp190/DSP1-UVG).
+```{r}
 ## Determine ColNames to use for Joins
 colnames(ht09)
 colnames(ht10)
@@ -37,7 +71,11 @@ oldNamesHT10 <- colnames(ht10)
 newNamesHT10 <- c(oldNamesHT10[1], oldNamesHT10[2], oldNamesHT10[3], oldNamesHT10[4], oldNamesHT10[5], oldNamesHT10[6], oldNamesHT10[7],
                   oldNamesHT10[8], oldNamesHT10[9], oldNamesHT10[10], "tipo_veh", "color_veh", "modelo_veh", "causa_acc")
 ht10 <- ht10 %>% rename_at(vars(oldNamesHT10), ~ newNamesHT10)
+```
 
+
+El siguiente paso consistió en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).
+```{r}
 ht09$dia_sem_ocu <- as.factor(ht09$dia_sem_ocu)
 ht10$dia_sem_ocu <- as.factor(ht10$dia_sem_ocu)
 ht09$hora_ocu <- as.character(ht09$hora_ocu)
@@ -48,15 +86,21 @@ ht10$depto_ocu <- as.character(ht10$depto_ocu)
 ht09$depto_ocu <- as.character(ht09$depto_ocu)
 ht10$areag_ocu <- as.numeric(ht10$areag_ocu)
 ht09$areag_ocu <- as.numeric(ht09$areag_ocu)
+```
+Seguido de la unificación de las bases de datos por medio de un **full_join**.
 
-
+```{r,message=T, warning=FALSE}
 ## Join between HT09 and HT10
 ht09$ano_ocu <- 2009
 ht10$ano_ocu <- 2010
 ht <- full_join(ht09,ht10)
+#Cleanup
 rm(ht09)
 rm(ht10)
 
+```
+A continación se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realizó en la parte descrita anteriormente.
+```{r, message=T, warning=FALSE}
 ht11$num_hecho <- NULL
 
 oldNamesHT11 <- colnames(ht11)
@@ -268,5 +312,22 @@ ht17$marca_veh <- mapvalues(ht17$marca_veh, from=999, to="Ignorado")
 ## Join between HT and HT17
 ht <- full_join(ht, ht17)
 rm(ht17)
+```
 
+Para concluir la unificación de la base de datos de hechos de tránsito se guardó como archivo CSV en la carpeta de **Results**
+```{r}
 write.csv(ht, "Results/ht09_17.csv", row.names = F)
+head(ht)
+```
+
+Fallecidos y Lesionados
+=====================================
+FOO
+
+Vehiculos Involucrados
+=====================================
+FOO
+
+Base Unificada INE 2009-2017
+=====================================
+FOO
