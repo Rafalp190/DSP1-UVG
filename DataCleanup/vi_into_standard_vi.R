@@ -1,12 +1,3 @@
-#VI vertical join journey MONKAS
-merginBottom <- function(x, y) {
-  x.diff <- setdiff(colnames(x), colnames(y))
-  y.diff <- setdiff(colnames(y), colnames(x))
-  x[, c(as.character(y.diff))] <- NA
-  y[, c(as.character(x.diff))] <- NA
-  return(rbind(x, y))
-}
-
 #renombrando vi 10
 new10 <- vi10csv
 summary(new10)
@@ -111,3 +102,6 @@ anos_2013_2014 <- full_join(new13,new14)
 anos_2015_2016 <- full_join(new15,new16)
 anos_2015_2017 <- full_join(anos_2015_2016,new17)
 anos_2010_2014 <- full_join(anos_2010_2012,anos_2013_2014)
+anos_2010_2017 <- full_join(anos_2010_2014,anos_2010_2014)
+
+write.csv(anos_2010_2017, "Results/10_17.csv", row.names = F)

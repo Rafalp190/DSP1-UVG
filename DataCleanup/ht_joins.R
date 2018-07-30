@@ -137,7 +137,7 @@ ht15$g_modelo_veh <- NULL
 
 
 colnames(ht15) <- c("ano_ocu", "mes_ocu", "dia_ocu","dia_sem_ocu", "hora_ocu", "depto_ocu", "muni_ocu", "areag_ocu", "zona_ocu", "sexo_pil", "edad_pil",
-                     "mayor_men","estado_pil", "tipo_veh", "marca_veh", "color_veh", "modelo_veh", "causa_acc")
+                    "mayor_men","estado_pil", "tipo_veh", "marca_veh", "color_veh", "modelo_veh", "causa_acc")
 
 ht15$hora_ocu <- as.character(ht15$hora_ocu)
 ht15$areag_ocu <- as.numeric(ht15$areag_ocu)
@@ -151,12 +151,12 @@ ht15$muni_ocu <- as.numeric(ht15$muni_ocu)
 
 # mes ocurrencia recodificacion
 ht$mes_ocu <- mapvalues(ht$mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre"
-                           , "Noviembre", "Diciembre"), to=c(1,2,3,4,5,6,7,8,9,9,10,11,12))
+                                           , "Noviembre", "Diciembre"), to=c(1,2,3,4,5,6,7,8,9,9,10,11,12))
 ht$mes_ocu <- as.numeric(ht$mes_ocu)
 
 # dia semana ocurrencia recodificacion
 ht$dia_sem_ocu <- mapvalues(ht$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Miércoles", "Jueves", "Viernes", "Sabado", "Sábado", "Domingo")
-                             , to=c(1,2,3,3,4,5,6,6,7))
+                            , to=c(1,2,3,3,4,5,6,6,7))
 ht$dia_sem_ocu <- as.numeric(ht$dia_sem_ocu)
 
 # Departamento recodificacion
@@ -179,9 +179,9 @@ ht$tipo_veh <- as.numeric(ht$tipo_veh)
 
 #Color vehiculo recodificacion (se queda como character)
 ht15$color_veh <-  mapvalues(ht15$color_veh, 
-                         from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                               "Celeste", "Corinto", "Café", "Beige", "Turquesa", "Marfil", "Anaranjado"
-                                               , "Aqua", "Morado", "Rosado", "Ignorado"))
+                             from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
+                                                   "Celeste", "Corinto", "Café", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                   , "Aqua", "Morado", "Rosado", "Ignorado"))
 
 # Modelo Vehiculo recodificacion
 ht15$modelo_veh <- mapvalues(ht15$modelo_veh, from=9999, to="Ignorado")
