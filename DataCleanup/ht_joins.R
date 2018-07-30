@@ -268,5 +268,5 @@ ht17$marca_veh <- mapvalues(ht17$marca_veh, from=999, to="Ignorado")
 ## Join between HT and HT17
 ht <- full_join(ht, ht17)
 rm(ht17)
-
+ht$grupo_eda_pil <- NULL
 write.csv(ht, "Results/ht09_17.csv", row.names = F)

@@ -1,6 +1,6 @@
 ---
 title: "INE Accidentes Automovilísticos"
-author: "Rafael León, Julio Barahona y Alejandro Vásquez"
+author: "RL, JB y AV"
 date: "July 29, 2018"
 output: flexdashboard::flex_dashboard
 ---
@@ -316,6 +316,7 @@ rm(ht17)
 
 Para concluir la unificación de la base de datos de hechos de tránsito se guardó como archivo CSV en la carpeta de **Results**
 ```{r}
+ht$grupo_eda_pil <- NULL
 write.csv(ht, "Results/ht09_17.csv", row.names = F)
 head(ht)
 ```
@@ -330,4 +331,4 @@ FOO
 
 Base Unificada INE 2009-2017
 =====================================
-FOO
+FOOa
