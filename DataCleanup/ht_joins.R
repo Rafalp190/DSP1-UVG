@@ -201,6 +201,7 @@ ht$mayor_men <- mapvalues(ht$mayor_men, from=c("Mayor", "Menor", "Ignorado"), to
 ht$mayor_men <- as.numeric(ht$mayor_men)
 ht15$marca_veh <- mapvalues(ht15$marca_veh, from=99, to="Ignorado")
 
+
 ## Join between HT and HT15
 ht$g_hora <- NULL
 ht <- full_join(ht, ht15)
