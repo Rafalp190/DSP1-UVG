@@ -19,6 +19,11 @@ Overview
 ### Descripción 
 El [instituto nacional de estadística de Guatemala](https://www.ine.gob.gt/), provee una base de datos de Accidentes de tránsito desde el año 2009 al año 2017 ([consultado: Julio, 2018)](https://www.ine.gob.gt/index.php/estadisticas-continuas/accidentes-de-transito)). Como parte de su módulo de estadísticas continuas. Esta base de datos presenta información de Hechos de Tránsito (**HT**), Vehiculos involucrados (**VI**) y lesionados y fallecidos (**FL**). Sin embargo esta información se encuentra fragmentada en distintos documentos que han sido agregados anualmente. Estos documentos se encuentran en distintos formatos y contienen variables diferentes. El objetivo primario de este acercamiento de limpieza de bases de datos es la unificación de los tres tipos de bases de datos para obtener una base centralizada facil de acceder para utilizar en futuros análisis. A continuación se desglosa el procedimiento que se siguió para realizar esta unificación, con justificaciones para las variables descartadas y las codificaciones realizadas. 
 
+#### Libro de Codigos
+El libro de códigos se encuentra en el siguiente enlace: (https://github.com/Rafalp190/DSP1-UVG/blob/master/DataCleanup/Results/Codebook.pdf)   
+
+O en un ambiente local (clonado de github), se encuentra en la carpeta **Results** bajo el nombre *Codebook*
+
 
 ### Observación Inicial
 Se realizó una observación inicial de las bases de datos para encontrar los puntos importantes a tratar para facilitar la unificación. 
