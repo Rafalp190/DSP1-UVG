@@ -74,7 +74,7 @@ ht$modelo_veh <- as.factor(ht$modelo_veh)
 vi$muni_ocu <- as.factor(vi$muni_ocu)
 ht$muni_ocu <- as.factor(ht$muni_ocu)
 
-ine_accidentes <- left_join(ht,vi)
+ine_accidentes <- full_join(ht,vi)
 
 
 #FL Joins
@@ -90,4 +90,4 @@ fl$muni_ocu <- as.factor(fl$muni_ocu)
 ine_accidentes <- full_join(ine_accidentes, fl)
 
 
-
+write.csv(ine_accidentes,"Results/ine_accidentes.csv", row.names = F)
