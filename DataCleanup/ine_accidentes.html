@@ -2972,11 +2972,316 @@ Para concluir la unificación de la base de datos de hechos de tránsito se guar
 </div>
 <div id="fallecidos-y-lesionados" class="section level1">
 <h1>Fallecidos y Lesionados</h1>
-<p>FOO</p>
+<p>Para facilitar el proceso de acceso a la información se decidió convertir todos los archivos a formato CSV. Despues se procedió a colocarlos en un repositorio en <a href="https://github.com/Rafalp190/DSP1-UVG">github</a>. Esto permite acceder a la información de una forma constante mientras exista el repositorio. Se decidió tomar este paso para lidiar con un error de programación de la página del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre <em>codigo_hash.extension</em>. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatización de la descarga imposible. El primer <em>snippet</em> de código muestra como se descargaron los archivos del repositorio de github.</p>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Read all FL dataframes by year
+f09 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09F.csv&quot;</span>)
+l09 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09L.csv&quot;</span>)
+fl10 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10FL.csv&quot;</span>)
+fl11 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/11FL.csv&quot;</span>)
+fl12 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/12FL.csv&quot;</span>)
+fl13 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/13FL.csv&quot;</span>)
+fl14 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/14FL.csv&quot;</span>)
+fl15 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/15FL.csv&quot;</span>)
+fl16 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16FL.csv&quot;</span>)
+fl17 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17FL.csv&quot;</span>)</code></pre></div>
+<p>Después de descargar las bases de datos se procedió a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el <a href="https://github.com/Rafalp190/DSP1-UVG">libro de códigos</a>.</p>
+<p>El siguiente paso consistió en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que <em>read.csv</em> interpreta los tipos de cada variable).</p>
+<p>Seguido de la unificación de las bases de datos por medio de un <strong>full_join</strong>.</p>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Determine ColNames to use for Join of f09 and l09
+oldnamesf09 &lt;-<span class="st"> </span><span class="kw">colnames</span>(f09)
+oldnamesl09 &lt;-<span class="st"> </span><span class="kw">colnames</span>(l09)
+newnamesf09 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesf09[<span class="dv">1</span>], oldnamesf09[<span class="dv">2</span>], oldnamesf09[<span class="dv">3</span>], oldnamesf09[<span class="dv">4</span>], oldnamesf09[<span class="dv">5</span>], 
+                 oldnamesf09[<span class="dv">6</span>], oldnamesf09[<span class="dv">7</span>], oldnamesf09[<span class="dv">8</span>], oldnamesl09[<span class="dv">9</span>], oldnamesf09[<span class="dv">10</span>],
+                 oldnamesf09[<span class="dv">11</span>], <span class="st">&quot;tipo_veh&quot;</span>, <span class="st">&quot;color_veh&quot;</span>, <span class="st">&quot;modelo_veh&quot;</span>, oldnamesf09[<span class="dv">15</span>])
+f09 &lt;-<span class="st"> </span>f09 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesf09), <span class="op">~</span><span class="st"> </span>newnamesf09)
+
+newnamesl09 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesl09[<span class="dv">1</span>], oldnamesl09[<span class="dv">2</span>], oldnamesl09[<span class="dv">3</span>], oldnamesl09[<span class="dv">4</span>], oldnamesl09[<span class="dv">5</span>],
+                 oldnamesl09[<span class="dv">6</span>], oldnamesl09[<span class="dv">7</span>], oldnamesl09[<span class="dv">8</span>], oldnamesl09[<span class="dv">9</span>], oldnamesl09[<span class="dv">10</span>],
+                 newnamesf09[<span class="dv">12</span>], newnamesf09[<span class="dv">13</span>], newnamesf09[<span class="dv">14</span>], oldnamesf09[<span class="dv">15</span>])
+
+l09 &lt;-<span class="st"> </span>l09 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesl09), <span class="op">~</span><span class="st"> </span>newnamesl09)
+
+f09 &lt;-<span class="st"> </span>f09 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hora_ocu =</span> <span class="kw">as.integer</span>(hora_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">as.integer</span>(edad_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_m1 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="st">&quot;Fallecidos&quot;</span>)
+
+l09 &lt;-<span class="st"> </span>l09 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="st">&quot;Lesionados&quot;</span>)
+
+##Join between f09 and l09
+fl09 &lt;-<span class="st"> </span><span class="kw">full_join</span>(f09, l09) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2009</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>)
+<span class="kw">rm</span>(f09)
+<span class="kw">rm</span>(l09)
+
+
+##Determine colnames for joining fl09 and fl10
+oldnamesfl10 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl10)
+newnamesfl10 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesfl10[<span class="dv">1</span>], oldnamesfl10[<span class="dv">2</span>], oldnamesfl10[<span class="dv">3</span>], oldnamesfl10[<span class="dv">4</span>], oldnamesfl10[<span class="dv">5</span>],
+                  oldnamesfl10[<span class="dv">6</span>], oldnamesfl10[<span class="dv">7</span>], <span class="st">&quot;sexo_pil&quot;</span>, <span class="st">&quot;edad_pil&quot;</span>, oldnamesfl10[<span class="dv">10</span>], 
+                  oldnamesfl10[<span class="dv">11</span>], <span class="st">&quot;tipo_veh&quot;</span>, <span class="st">&quot;causa_acc&quot;</span>)
+fl10 &lt;-<span class="st"> </span>fl10 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl10), <span class="op">~</span><span class="st"> </span>newnamesfl10) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2010</span>)
+
+##Join between fl09 and fl10
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl10, fl09)
+<span class="kw">rm</span>(fl09)
+<span class="kw">rm</span>(fl10)</code></pre></div>
+A continación se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realizó en la parte descrita anteriormente.
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##Determine colnames for joining fl and fl11
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+oldnamesfl11 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl11)
+newnamesfl11 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesfl11[<span class="dv">1</span>], oldnamesfl11[<span class="dv">2</span>], oldnamesfl11[<span class="dv">3</span>], oldnamesfl11[<span class="dv">4</span>], oldnamesfl11[<span class="dv">5</span>],
+                  oldnamesfl11[<span class="dv">6</span>], oldnamesfl11[<span class="dv">7</span>], oldnamesfl11[<span class="dv">8</span>], oldnamesfl11[<span class="dv">9</span>], oldnamesfl11[<span class="dv">10</span>],
+                  oldnamesfl11[<span class="dv">11</span>], oldnamesfl11[<span class="dv">12</span>], oldnamesfl11[<span class="dv">13</span>], namesfl[<span class="dv">11</span>], namesfl[<span class="dv">12</span>],
+                  <span class="st">&quot;marca_veh&quot;</span>, namesfl[<span class="dv">15</span>], namesfl[<span class="dv">16</span>], oldnamesfl11[<span class="dv">19</span>])
+fl11 &lt;-<span class="st"> </span>fl11 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl11), <span class="op">~</span><span class="st"> </span>newnamesfl11) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">as.integer</span>(zona_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">as.integer</span>(edad_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_m1 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2011</span>)
+
+##Join between fl and fl11
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl11)
+<span class="kw">rm</span>(fl11)
+
+
+##Determine colnames for joining fl and fl12
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+oldnamesfl12 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl12)
+newnamesfl12 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesfl12[<span class="dv">1</span>], oldnamesfl12[<span class="dv">2</span>], oldnamesfl12[<span class="dv">3</span>], oldnamesfl12[<span class="dv">4</span>], oldnamesfl12[<span class="dv">5</span>],
+                  oldnamesfl12[<span class="dv">6</span>], namesfl[<span class="dv">18</span>], oldnamesfl12[<span class="dv">8</span>], oldnamesfl12[<span class="dv">9</span>], namesfl[<span class="dv">8</span>], 
+                  namesfl[<span class="dv">9</span>], oldnamesfl12[<span class="dv">12</span>], namesfl[<span class="dv">10</span>], namesfl[<span class="dv">11</span>], namesfl[<span class="dv">12</span>], namesfl[<span class="dv">15</span>],
+                  namesfl[<span class="dv">13</span>])
+fl12 &lt;-<span class="st"> </span>fl12 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl12), <span class="op">~</span><span class="st"> </span>newnamesfl12) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_m1 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">as.integer</span>(zona_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">as.integer</span>(edad_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">muni_ocu =</span> <span class="kw">as.integer</span>(muni_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2012</span>)
+
+
+##Join between fl and fl12
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl12) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_edad =</span> <span class="ot">NULL</span>)
+<span class="kw">rm</span>(fl12)
+
+##Determine colnames for joining fl and fl13
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+oldnamesfl13 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl13)
+newnamesfl13 &lt;-<span class="st"> </span><span class="kw">c</span>(oldnamesfl13[<span class="dv">1</span>], oldnamesfl13[<span class="dv">2</span>], oldnamesfl13[<span class="dv">3</span>], oldnamesfl13[<span class="dv">4</span>], oldnamesfl13[<span class="dv">5</span>],
+                  oldnamesfl13[<span class="dv">6</span>], oldnamesfl13[<span class="dv">7</span>], oldnamesfl13[<span class="dv">8</span>], oldnamesfl13[<span class="dv">9</span>], oldnamesfl13[<span class="dv">10</span>],
+                  oldnamesfl13[<span class="dv">11</span>], oldnamesfl13[<span class="dv">12</span>], oldnamesfl13[<span class="dv">13</span>], namesfl[<span class="dv">10</span>], namesfl[<span class="dv">11</span>], 
+                  namesfl[<span class="dv">18</span>], namesfl[<span class="dv">14</span>], namesfl[<span class="dv">15</span>], oldnamesfl13[<span class="dv">19</span>])
+
+fl13 &lt;-<span class="st"> </span>fl13 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl13), <span class="op">~</span><span class="st"> </span>newnamesfl13) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_edad =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_m1 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">as.integer</span>(zona_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">as.integer</span>(edad_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2013</span>)
+
+##Join between fl and fl13
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl13)
+<span class="kw">rm</span>(fl13)
+
+
+##Determine colnames for joining fl and fl14
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+oldnamesfl14 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl14)
+newnamesfl14 &lt;-<span class="st"> </span>newnamesfl13
+
+fl14 &lt;-<span class="st"> </span>fl14 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl14), <span class="op">~</span><span class="st"> </span>newnamesfl14) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">num_hecho =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">as.integer</span>(zona_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">as.integer</span>(edad_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_m1 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ano_ocu =</span> <span class="dv">2014</span>)
+
+##Join between fl and fl14
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl14)
+<span class="kw">rm</span>(fl14)
+
+##Determine colnames for joining fl and fl15
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+
+fl15 &lt;-<span class="st"> </span>fl15 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(núm_<span class="dt">corre =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora_5 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mayor_menor =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_80ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_60ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_quinquenales =</span> <span class="ot">NULL</span>)
+
+oldnamesfl15 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl15)
+newnamesfl15 &lt;-<span class="st"> </span><span class="kw">c</span>(namesfl[<span class="dv">13</span>], oldnamesfl15[<span class="dv">2</span>], namesfl[<span class="dv">1</span>], namesfl[<span class="dv">3</span>], oldnamesfl15[<span class="dv">5</span>], 
+                  oldnamesfl15[<span class="dv">6</span>], namesfl[<span class="dv">17</span>], namesfl[<span class="dv">6</span>], oldnamesfl15[<span class="dv">9</span>], namesfl[<span class="dv">8</span>],
+                  namesfl[<span class="dv">9</span>], namesfl[<span class="dv">10</span>], oldnamesfl15[<span class="dv">13</span>], oldnamesfl15[<span class="dv">14</span>], oldnamesfl15[<span class="dv">15</span>],
+                  oldnamesfl15[<span class="dv">16</span>], oldnamesfl15[<span class="dv">17</span>], oldnamesfl15[<span class="dv">18</span>], namesfl[<span class="dv">12</span>])
+
+
+fl15 &lt;-<span class="st"> </span>fl15 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl15), <span class="op">~</span><span class="st"> </span>newnamesfl15) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.integer</span>(mes_ocu))
+
+<span class="co"># Desde el anio 2015 decidieron codificar las variables, consideramos que es más eficiente a nivel práctico codificar las variables de mes y dia de </span>
+<span class="co"># la semana a variables numericas</span>
+
+<span class="co"># Recodificaciones</span>
+
+
+fl &lt;-<span class="st"> </span>fl <span class="op">%&gt;%</span>
+<span class="st">   </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(mes_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Enero&quot;</span>, <span class="st">&quot;Febrero&quot;</span>, <span class="st">&quot;Marzo&quot;</span>, <span class="st">&quot;Abril&quot;</span>, <span class="st">&quot;Mayo&quot;</span>, <span class="st">&quot;Junio&quot;</span>, 
+                                             <span class="st">&quot;Julio&quot;</span>, <span class="st">&quot;Agosto&quot;</span>, <span class="st">&quot;Septiembre&quot;</span>, <span class="st">&quot;Septiemre&quot;</span>, <span class="st">&quot;Octubre&quot;</span>,
+                                             <span class="st">&quot;Noviembre&quot;</span>, <span class="st">&quot;Diciembre&quot;</span>),
+                          <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">dia_sem_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(dia_sem_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Lunes&quot;</span>, <span class="st">&quot;Martes&quot;</span>, <span class="st">&quot;Miercoles&quot;</span>, <span class="st">&quot;Miércoles&quot;</span>, 
+                                                                <span class="st">&quot;Jueves&quot;</span>, <span class="st">&quot;Viernes&quot;</span>, <span class="st">&quot;Sabado&quot;</span>, <span class="st">&quot;Sábado&quot;</span>,
+                                                                <span class="st">&quot;Domingo&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">7</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(sexo_pil, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Hombre&quot;</span>, <span class="st">&quot;Mujer&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">9</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">estado_pil =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(estado_pil, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Bajo efectos de alcohol&quot;</span>, <span class="st">&quot;Ebrio&quot;</span>, <span class="st">&quot;Normal&quot;</span>,
+                                                              <span class="st">&quot;Ignorado&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tipo_veh =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(tipo_veh, <span class="dt">from=</span> <span class="kw">as.vector</span>(<span class="kw">as.data.frame</span>(<span class="kw">table</span>(<span class="kw">as.factor</span>(tipo_veh)))<span class="op">$</span>Var1),
+                              <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">17</span>, <span class="dv">7</span>, <span class="dv">12</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">15</span>, <span class="dv">16</span>,
+                                   <span class="dv">99</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">4</span>, <span class="dv">14</span>, <span class="dv">11</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">13</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">mapvalues</span>(causa_acc, <span class="dt">from =</span> <span class="kw">as.vector</span>(<span class="kw">as.data.frame</span>(<span class="kw">table</span>(<span class="kw">as.factor</span>(causa_acc)))<span class="op">$</span>Var1), 
+                               <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Atropello&quot;</span>, <span class="st">&quot;Ca?da&quot;</span>,<span class="st">&quot;Ca?da&quot;</span>,<span class="st">&quot;Choque&quot;</span>, <span class="st">&quot;Choque&quot;</span>, <span class="st">&quot;Colisi?n&quot;</span>,<span class="st">&quot;Colisi?n&quot;</span>,
+                                      <span class="st">&quot;Colisi?n&quot;</span>, <span class="st">&quot;Derrumbe&quot;</span>, <span class="st">&quot;Ca?da&quot;</span>, <span class="st">&quot;Empotro&quot;</span>, <span class="st">&quot;Derrumbe&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>,
+                                      <span class="st">&quot;Vuelco&quot;</span>,<span class="st">&quot;Vuelco&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">areag_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(areag_ocu, <span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Rural&quot;</span>, <span class="st">&quot;Urbano&quot;</span>), <span class="dt">to =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>))))
+
+
+fl15 &lt;-<span class="st"> </span>fl15 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">22</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Guatemala&quot;</span>,<span class="st">&quot;El progreso&quot;</span>,<span class="st">&quot;Sacatepéquez&quot;</span>,<span class="st">&quot;Chimaltenango&quot;</span>,<span class="st">&quot;Escuintla&quot;</span>,<span class="st">&quot;Santa rosa&quot;</span>,<span class="st">&quot;Sololá&quot;</span>,<span class="st">&quot;Totonicapán&quot;</span>,<span class="st">&quot;Quetzaltenango&quot;</span>,<span class="st">&quot;Suchitepéquez&quot;</span>,
+                                                                        <span class="st">&quot;Retalhuleu&quot;</span>,<span class="st">&quot;San Marcos&quot;</span>,<span class="st">&quot;Huehuetenango&quot;</span>,<span class="st">&quot;Quiche&quot;</span>,<span class="st">&quot;Baja Verapaz&quot;</span>,<span class="st">&quot;Alta Verapaz&quot;</span>,<span class="st">&quot;Peten&quot;</span>,<span class="st">&quot;Izabal&quot;</span>,<span class="st">&quot;Zacapa&quot;</span>,<span class="st">&quot;Chiquimula&quot;</span>,<span class="st">&quot;Jalapa&quot;</span>,
+                                                                        <span class="st">&quot;Jutiapa&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">mapvalues</span>(color_veh, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,<span class="dv">99</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Rojo&quot;</span>, <span class="st">&quot;Blanco&quot;</span>,<span class="st">&quot;Azul&quot;</span>, <span class="st">&quot;Gris&quot;</span>, <span class="st">&quot;Negro&quot;</span>, <span class="st">&quot;Verde&quot;</span>, <span class="st">&quot;Amarillo&quot;</span>,
+                                                <span class="st">&quot;Celeste&quot;</span>, <span class="st">&quot;Corinto&quot;</span>, <span class="st">&quot;Café&quot;</span>, <span class="st">&quot;Beige&quot;</span>, <span class="st">&quot;Turquesa&quot;</span>, <span class="st">&quot;Marfil&quot;</span>, <span class="st">&quot;Anaranjado&quot;</span>
+                                                , <span class="st">&quot;Aqua&quot;</span>, <span class="st">&quot;Morado&quot;</span>, <span class="st">&quot;Rosado&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">mapvalues</span>(modelo_veh, <span class="dt">from =</span> <span class="dv">9999</span>, <span class="dt">to =</span> <span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">mapvalues</span>(marca_veh, <span class="dt">from=</span><span class="dv">99</span>, <span class="dt">to=</span><span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(mes_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Enero&quot;</span>, <span class="st">&quot;Febrero&quot;</span>, <span class="st">&quot;Marzo&quot;</span>, <span class="st">&quot;Abril&quot;</span>, <span class="st">&quot;Mayo&quot;</span>, <span class="st">&quot;Junio&quot;</span>, 
+                                                        <span class="st">&quot;Julio&quot;</span>, <span class="st">&quot;Agosto&quot;</span>, <span class="st">&quot;Septiembre&quot;</span>, <span class="st">&quot;Septiemre&quot;</span>, <span class="st">&quot;Octubre&quot;</span>,
+                                                        <span class="st">&quot;Noviembre&quot;</span>, <span class="st">&quot;Diciembre&quot;</span>),
+                                        <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="kw">mapvalues</span>(lesio_fall, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="kw">c</span>(<span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">mapvalues</span>(causa_acc, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Colisi?n&quot;</span>, <span class="st">&quot;Choque&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>, <span class="st">&quot;Ca?da&quot;</span>, <span class="st">&quot;Atropello&quot;</span>)))
+
+
+##Join between fl and fl15
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl15)
+<span class="kw">rm</span>(fl15)
+
+##Determine colnames for joining fl and fl16
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+
+fl16 &lt;-<span class="st"> </span>fl16 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(núm_<span class="dt">corre =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora_5 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mayor_menor =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_80ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_60ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_quinquenales =</span> <span class="ot">NULL</span>)
+
+oldnamesfl16 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl16)
+newnamesfl16 &lt;-<span class="st"> </span><span class="kw">c</span>(namesfl[<span class="dv">1</span>], <span class="st">&quot;ano_ocu&quot;</span>, oldnamesfl16[<span class="dv">3</span>], oldnamesfl16[<span class="dv">4</span>], <span class="st">&quot;dia_sem_ocu&quot;</span>,
+                  <span class="st">&quot;muni_ocu&quot;</span>, oldnamesfl16[<span class="dv">7</span>], <span class="st">&quot;areag_ocu&quot;</span>, oldnamesfl16[<span class="dv">9</span>], <span class="st">&quot;sexo_pil&quot;</span>,
+                  <span class="st">&quot;edad_pil&quot;</span>, oldnamesfl16[<span class="dv">12</span>], oldnamesfl16[<span class="dv">13</span>], oldnamesfl16[<span class="dv">14</span>], oldnamesfl16[<span class="dv">15</span>],
+                  <span class="st">&quot;causa_acc&quot;</span>, oldnamesfl16[<span class="dv">17</span>], <span class="st">&quot;lesio_fall&quot;</span>, oldnamesfl16[<span class="dv">19</span>])
+
+fl16 &lt;-<span class="st"> </span>fl16 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl16), <span class="op">~</span><span class="st"> </span>newnamesfl16) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">22</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Guatemala&quot;</span>,<span class="st">&quot;El progreso&quot;</span>,<span class="st">&quot;Sacatepéquez&quot;</span>,<span class="st">&quot;Chimaltenango&quot;</span>,<span class="st">&quot;Escuintla&quot;</span>,<span class="st">&quot;Santa rosa&quot;</span>,<span class="st">&quot;Sololá&quot;</span>,<span class="st">&quot;Totonicapán&quot;</span>,<span class="st">&quot;Quetzaltenango&quot;</span>,<span class="st">&quot;Suchitepéquez&quot;</span>,
+                                                             <span class="st">&quot;Retalhuleu&quot;</span>,<span class="st">&quot;San Marcos&quot;</span>,<span class="st">&quot;Huehuetenango&quot;</span>,<span class="st">&quot;Quiche&quot;</span>,<span class="st">&quot;Baja Verapaz&quot;</span>,<span class="st">&quot;Alta Verapaz&quot;</span>,<span class="st">&quot;Peten&quot;</span>,<span class="st">&quot;Izabal&quot;</span>,<span class="st">&quot;Zacapa&quot;</span>,<span class="st">&quot;Chiquimula&quot;</span>,<span class="st">&quot;Jalapa&quot;</span>,
+                                                             <span class="st">&quot;Jutiapa&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">mapvalues</span>(color_veh, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,<span class="dv">99</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Rojo&quot;</span>, <span class="st">&quot;Blanco&quot;</span>,<span class="st">&quot;Azul&quot;</span>, <span class="st">&quot;Gris&quot;</span>, <span class="st">&quot;Negro&quot;</span>, <span class="st">&quot;Verde&quot;</span>, <span class="st">&quot;Amarillo&quot;</span>,
+                                                                <span class="st">&quot;Celeste&quot;</span>, <span class="st">&quot;Corinto&quot;</span>, <span class="st">&quot;Café&quot;</span>, <span class="st">&quot;Beige&quot;</span>, <span class="st">&quot;Turquesa&quot;</span>, <span class="st">&quot;Marfil&quot;</span>, <span class="st">&quot;Anaranjado&quot;</span>
+                                                                , <span class="st">&quot;Aqua&quot;</span>, <span class="st">&quot;Morado&quot;</span>, <span class="st">&quot;Rosado&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">mapvalues</span>(modelo_veh, <span class="dt">from =</span> <span class="dv">9999</span>, <span class="dt">to =</span> <span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">mapvalues</span>(marca_veh, <span class="dt">from=</span><span class="dv">99</span>, <span class="dt">to=</span><span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(mes_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Enero&quot;</span>, <span class="st">&quot;Febrero&quot;</span>, <span class="st">&quot;Marzo&quot;</span>, <span class="st">&quot;Abril&quot;</span>, <span class="st">&quot;Mayo&quot;</span>, <span class="st">&quot;Junio&quot;</span>, 
+                                                        <span class="st">&quot;Julio&quot;</span>, <span class="st">&quot;Agosto&quot;</span>, <span class="st">&quot;Septiembre&quot;</span>, <span class="st">&quot;Septiemre&quot;</span>, <span class="st">&quot;Octubre&quot;</span>,
+                                                        <span class="st">&quot;Noviembre&quot;</span>, <span class="st">&quot;Diciembre&quot;</span>),
+                                        <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="kw">mapvalues</span>(lesio_fall, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="kw">c</span>(<span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">mapvalues</span>(causa_acc, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Colisi?n&quot;</span>, <span class="st">&quot;Choque&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>, <span class="st">&quot;Ca?da&quot;</span>, <span class="st">&quot;Atropello&quot;</span>)))
+  
+
+##Join between fl and fl16
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl16)
+<span class="kw">rm</span>(fl16)
+
+##Determine colnames for joining fl and fl16
+namesfl &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl)
+
+fl17 &lt;-<span class="st"> </span>fl17 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(núm_<span class="dt">corre =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_hora_5 =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mayor_menor =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_80ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(g_edad_60ymá<span class="dt">s =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_quinquenales =</span> <span class="ot">NULL</span>)
+
+oldnamesfl17 &lt;-<span class="st"> </span><span class="kw">colnames</span>(fl17)
+newnamesfl17 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ano_ocu&quot;</span>, <span class="st">&quot;dia_ocu&quot;</span>, oldnamesfl17[<span class="dv">3</span>], oldnamesfl17[<span class="dv">4</span>], <span class="st">&quot;dia_sem_ocu&quot;</span>,
+                  <span class="st">&quot;muni_ocu&quot;</span>, oldnamesfl17[<span class="dv">7</span>], oldnamesfl17[<span class="dv">8</span>], <span class="st">&quot;sexo_pil&quot;</span>, <span class="st">&quot;edad_pil&quot;</span>,
+                  oldnamesfl17[<span class="dv">11</span>], oldnamesfl17[<span class="dv">12</span>], oldnamesfl17[<span class="dv">13</span>], oldnamesfl17[<span class="dv">14</span>], oldnamesfl17[<span class="dv">15</span>],
+                  <span class="st">&quot;causa_acc&quot;</span>, <span class="st">&quot;lesio_fall&quot;</span>, oldnamesfl17[<span class="dv">18</span>])
+
+fl17 &lt;-<span class="st"> </span>fl17 <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">rename_at</span>(<span class="kw">vars</span>(oldnamesfl17), <span class="op">~</span><span class="st"> </span>newnamesfl17) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">22</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Guatemala&quot;</span>,<span class="st">&quot;El progreso&quot;</span>,<span class="st">&quot;Sacatepéquez&quot;</span>,<span class="st">&quot;Chimaltenango&quot;</span>,<span class="st">&quot;Escuintla&quot;</span>,<span class="st">&quot;Santa rosa&quot;</span>,<span class="st">&quot;Sololá&quot;</span>,<span class="st">&quot;Totonicapán&quot;</span>,<span class="st">&quot;Quetzaltenango&quot;</span>,<span class="st">&quot;Suchitepéquez&quot;</span>,
+                                                             <span class="st">&quot;Retalhuleu&quot;</span>,<span class="st">&quot;San Marcos&quot;</span>,<span class="st">&quot;Huehuetenango&quot;</span>,<span class="st">&quot;Quiche&quot;</span>,<span class="st">&quot;Baja Verapaz&quot;</span>,<span class="st">&quot;Alta Verapaz&quot;</span>,<span class="st">&quot;Peten&quot;</span>,<span class="st">&quot;Izabal&quot;</span>,<span class="st">&quot;Zacapa&quot;</span>,<span class="st">&quot;Chiquimula&quot;</span>,<span class="st">&quot;Jalapa&quot;</span>,
+                                                             <span class="st">&quot;Jutiapa&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">mapvalues</span>(color_veh, <span class="dt">from=</span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,<span class="dv">99</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Rojo&quot;</span>, <span class="st">&quot;Blanco&quot;</span>,<span class="st">&quot;Azul&quot;</span>, <span class="st">&quot;Gris&quot;</span>, <span class="st">&quot;Negro&quot;</span>, <span class="st">&quot;Verde&quot;</span>, <span class="st">&quot;Amarillo&quot;</span>,
+                                                                <span class="st">&quot;Celeste&quot;</span>, <span class="st">&quot;Corinto&quot;</span>, <span class="st">&quot;Café&quot;</span>, <span class="st">&quot;Beige&quot;</span>, <span class="st">&quot;Turquesa&quot;</span>, <span class="st">&quot;Marfil&quot;</span>, <span class="st">&quot;Anaranjado&quot;</span>
+                                                                , <span class="st">&quot;Aqua&quot;</span>, <span class="st">&quot;Morado&quot;</span>, <span class="st">&quot;Rosado&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">mapvalues</span>(modelo_veh, <span class="dt">from =</span> <span class="dv">9999</span>, <span class="dt">to =</span> <span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">mapvalues</span>(marca_veh, <span class="dt">from=</span><span class="dv">99</span>, <span class="dt">to=</span><span class="st">&quot;Ignorado&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.numeric</span>(<span class="kw">mapvalues</span>(mes_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Enero&quot;</span>, <span class="st">&quot;Febrero&quot;</span>, <span class="st">&quot;Marzo&quot;</span>, <span class="st">&quot;Abril&quot;</span>, <span class="st">&quot;Mayo&quot;</span>, <span class="st">&quot;Junio&quot;</span>, 
+                                                        <span class="st">&quot;Julio&quot;</span>, <span class="st">&quot;Agosto&quot;</span>, <span class="st">&quot;Septiembre&quot;</span>, <span class="st">&quot;Septiemre&quot;</span>, <span class="st">&quot;Octubre&quot;</span>,
+                                                        <span class="st">&quot;Noviembre&quot;</span>, <span class="st">&quot;Diciembre&quot;</span>),
+                                        <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>)))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="kw">mapvalues</span>(lesio_fall, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="kw">c</span>(<span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">mapvalues</span>(causa_acc, <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Colisi?n&quot;</span>, <span class="st">&quot;Choque&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>, <span class="st">&quot;Ca?da&quot;</span>, <span class="st">&quot;Atropello&quot;</span>)))
+
+##Join between fl and fl17
+fl &lt;-<span class="st"> </span><span class="kw">full_join</span>(fl, fl17)
+<span class="kw">rm</span>(fl17)
+
+
+<span class="co">#Write final .csv file</span>
+<span class="kw">write.csv</span>(fl, <span class="dt">file =</span> <span class="st">&quot;Results/fl09_17.csv&quot;</span>, <span class="dt">row.names =</span> F)</code></pre></div>
 </div>
 <div id="vehiculos-involucrados" class="section level1">
 <h1>Vehiculos Involucrados</h1>
-<p>Para el area el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada año se agregaban campos que se pueden calcular , esto los vuelve redundantes.</p>
+<p>Para el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada año se agregaban campos que se pueden calcular , esto los vuelve redundantes.</p>
 Año 2010: se agrego una columna con el año del caso individual
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
