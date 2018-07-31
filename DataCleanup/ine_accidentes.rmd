@@ -1,6 +1,6 @@
 ---
-title: "INE Accidentes Automovil√≠sticos"
-author: "Rafael Le√≥n, Julio Barahona y Alejandro V√°squez"
+title: "INE Accidentes AutomovilÌsticos"
+author: "Rafael LeÛn, Julio Barahona y Alejandro V·squez"
 date: "July 29, 2018"
 output: flexdashboard::flex_dashboard
 ---
@@ -16,8 +16,8 @@ if (!require("flexdashboard"))    {install.packages("flexdashboard");   library(
 Overview
 =====================================  
 
-### Descripci√≥n 
-El [instituto nacional de estad√≠stica de Guatemala](https://www.ine.gob.gt/), provee una base de datos de Accidentes de tr√°nsito desde el a√±o 2009 al a√±o 2017 ([consultado: Julio, 2018)](https://www.ine.gob.gt/index.php/estadisticas-continuas/accidentes-de-transito)). Como parte de su m√≥dulo de estad√≠sticas continuas. Esta base de datos presenta informaci√≥n de Hechos de Tr√°nsito (**HT**), Vehiculos involucrados (**VI**) y lesionados y fallecidos (**FL**). Sin embargo esta informaci√≥n se encuentra fragmentada en distintos documentos que han sido agregados anualmente. Estos documentos se encuentran en distintos formatos y contienen variables diferentes. El objetivo primario de este acercamiento de limpieza de bases de datos es la unificaci√≥n de los tres tipos de bases de datos para obtener una base centralizada facil de acceder para utilizar en futuros an√°lisis. A continuaci√≥n se desglosa el procedimiento que se sigui√≥ para realizar esta unificaci√≥n, con justificaciones para las variables descartadas y las codificaciones realizadas. 
+### DescripciÛn 
+El [instituto nacional de estadÌstica de Guatemala](https://www.ine.gob.gt/), provee una base de datos de Accidentes de tr·nsito desde el aÒo 2009 al aÒo 2017 ([consultado: Julio, 2018)](https://www.ine.gob.gt/index.php/estadisticas-continuas/accidentes-de-transito)). Como parte de su mÛdulo de estadÌsticas continuas. Esta base de datos presenta informaciÛn de Hechos de Tr·nsito (**HT**), Vehiculos involucrados (**VI**) y lesionados y fallecidos (**FL**). Sin embargo esta informaciÛn se encuentra fragmentada en distintos documentos que han sido agregados anualmente. Estos documentos se encuentran en distintos formatos y contienen variables diferentes. El objetivo primario de este acercamiento de limpieza de bases de datos es la unificaciÛn de los tres tipos de bases de datos para obtener una base centralizada facil de acceder para utilizar en futuros an·lisis. A continuaciÛn se desglosa el procedimiento que se siguiÛ para realizar esta unificaciÛn, con justificaciones para las variables descartadas y las codificaciones realizadas. 
 
 #### Libro de Codigos
 El libro de codigos se encuentra en el siguiente enlace: (https://github.com/Rafalp190/DSP1-UVG/blob/master/DataCleanup/Results/Codebook.pdf)   
@@ -25,26 +25,26 @@ El libro de codigos se encuentra en el siguiente enlace: (https://github.com/Raf
 O en un ambiente local (clonado de github), se encuentra en la carpeta **Results** bajo el nombre *Codebook*
 
 
-### Observaci√≥n Inicial
-Se realiz√≥ una observaci√≥n inicial de las bases de datos para encontrar los puntos importantes a tratar para facilitar la unificaci√≥n. 
-Despu√©s de descargar los archivos observamos varios problemas que hay que tratar para limpiar los datos. A continuaci√≥n, se lista cada uno de ellos.  
+### ObservaciÛn Inicial
+Se realizÛ una observaciÛn inicial de las bases de datos para encontrar los puntos importantes a tratar para facilitar la unificaciÛn. 
+DespuÈs de descargar los archivos observamos varios problemas que hay que tratar para limpiar los datos. A continuaciÛn, se lista cada uno de ellos.  
 
-- Todos los archivos de los distintos a√±os est√°n separados. 
-- El primer problema que observamos es que los datos est√°n en distintos formatos (SPSS, xlsx y xls).
+- Todos los archivos de los distintos aÒos est·n separados. 
+- El primer problema que observamos es que los datos est·n en distintos formatos (SPSS, xlsx y xls).
 - Nombres de variables con tildes y caracteres especiales.
-- Variables categ√≥ricas codificadas con variables num√©ricos al igual que los valores faltantes
-- Bases de datos de 2009 con nombres diferentes a las bases de datos de a√±os m√°s nuevos (diferente formato).
+- Variables categÛricas codificadas con variables numÈricos al igual que los valores faltantes
+- Bases de datos de 2009 con nombres diferentes a las bases de datos de aÒos m·s nuevos (diferente formato).
 - Variables binarias codificadas con 1,2
 - Valores faltantes en todas las columnas
-- Columnas de D√≠a/mes/semana/fecha separadas  
+- Columnas de DÌa/mes/semana/fecha separadas  
 
-Para facilitar el proceso de acceso a la informaci√≥n se decidi√≥ convertir todos los archivos a formato CSV. Despues se procedi√≥ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaci√≥n de una forma constante mientras exista el repositorio. Se decidi√≥ tomar este paso para lidiar con un error de programaci√≥n de la p√°gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaci√≥n de la descarga imposible. El primer *snippet* de c√≥digo muestra como se descargaron los archivos del repositorio de github.  
+Para facilitar el proceso de acceso a la informaciÛn se decidiÛ convertir todos los archivos a formato CSV. Despues se procediÛ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaciÛn de una forma constante mientras exista el repositorio. Se decidiÛ tomar este paso para lidiar con un error de programaciÛn de la p·gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaciÛn de la descarga imposible. El primer *snippet* de cÛdigo muestra como se descargaron los archivos del repositorio de github.  
 
 
-Hechos de Tr√°nsito
+Hechos de Tr·nsito
 =====================================================================
 
-Para facilitar el proceso de acceso a la informaci√≥n se decidi√≥ convertir todos los archivos a formato CSV. Despues se procedi√≥ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaci√≥n de una forma constante mientras exista el repositorio. Se decidi√≥ tomar este paso para lidiar con un error de programaci√≥n de la p√°gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaci√≥n de la descarga imposible. El primer *snippet* de c√≥digo muestra como se descargaron los archivos del repositorio de github.  
+Para facilitar el proceso de acceso a la informaciÛn se decidiÛ convertir todos los archivos a formato CSV. Despues se procediÛ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaciÛn de una forma constante mientras exista el repositorio. Se decidiÛ tomar este paso para lidiar con un error de programaciÛn de la p·gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaciÛn de la descarga imposible. El primer *snippet* de cÛdigo muestra como se descargaron los archivos del repositorio de github.  
 
 ```{r downloads}
 ## Read all HT dataframes by year
@@ -59,7 +59,7 @@ ht16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/Da
 ht17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17HT.csv")
 ```
 
-Despu√©s de descargar las bases de datos se procedi√≥ a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de c√≥digos](https://github.com/Rafalp190/DSP1-UVG).
+DespuÈs de descargar las bases de datos se procediÛ a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de cÛdigos](https://github.com/Rafalp190/DSP1-UVG).
 ```{r}
 ## Determine ColNames to use for Joins
 colnames(ht09)
@@ -79,7 +79,7 @@ ht10 <- ht10 %>% rename_at(vars(oldNamesHT10), ~ newNamesHT10)
 ```
 
 
-El siguiente paso consisti√≥ en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).
+El siguiente paso consistiÛ en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).
 ```{r}
 ht09$dia_sem_ocu <- as.factor(ht09$dia_sem_ocu)
 ht10$dia_sem_ocu <- as.factor(ht10$dia_sem_ocu)
@@ -92,7 +92,7 @@ ht09$depto_ocu <- as.character(ht09$depto_ocu)
 ht10$areag_ocu <- as.numeric(ht10$areag_ocu)
 ht09$areag_ocu <- as.numeric(ht09$areag_ocu)
 ```
-Seguido de la unificaci√≥n de las bases de datos por medio de un **full_join**.
+Seguido de la unificaciÛn de las bases de datos por medio de un **full_join**.
 
 ```{r,message=T, warning=FALSE}
 ## Join between HT09 and HT10
@@ -104,7 +104,7 @@ rm(ht09)
 rm(ht10)
 
 ```
-A continaci√≥n se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realiz√≥ en la parte descrita anteriormente.
+A continaciÛn se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realizÛ en la parte descrita anteriormente.
 ```{r, message=T, warning=FALSE}
 ht11$num_hecho <- NULL
 
@@ -176,9 +176,9 @@ ht <- full_join(ht, ht14)
 rm(ht14)
 
 
-ht15$n√∫m_corre <- NULL
-ht15$g_edad_60ym√°s <- NULL
-ht15$g_edad_80ym√°s <- NULL
+ht15$n˙m_corre <- NULL
+ht15$g_edad_60ym·s <- NULL
+ht15$g_edad_80ym·s <- NULL
 ht15$g_hora_5 <- NULL
 ht15$g_hora <- NULL
 ht15$edad_quinquenales <- NULL
@@ -195,7 +195,7 @@ ht15$zona_ocu <- as.numeric(ht15$zona_ocu)
 ht15$muni_ocu <- as.numeric(ht15$muni_ocu)
 
 
-# Desde el anio 2015 decidieron codificar las variables, consideramos que es m√°s eficiente a nivel pr√°ctico codificar las variables de mes y dia de 
+# Desde el anio 2015 decidieron codificar las variables, consideramos que es m·s eficiente a nivel pr·ctico codificar las variables de mes y dia de 
 # la semana a variables numericas
 
 # mes ocurrencia recodificacion
@@ -204,12 +204,12 @@ ht$mes_ocu <- mapvalues(ht$mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril",
 ht$mes_ocu <- as.numeric(ht$mes_ocu)
 
 # dia semana ocurrencia recodificacion
-ht$dia_sem_ocu <- mapvalues(ht$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Mi√©rcoles", "Jueves", "Viernes", "Sabado", "S√°bado", "Domingo")
+ht$dia_sem_ocu <- mapvalues(ht$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "MiÈrcoles", "Jueves", "Viernes", "Sabado", "S·bado", "Domingo")
                              , to=c(1,2,3,3,4,5,6,6,7))
 ht$dia_sem_ocu <- as.numeric(ht$dia_sem_ocu)
 
 # Departamento recodificacion
-ht15$depto_ocu <- mapvalues(ht15$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+ht15$depto_ocu <- mapvalues(ht15$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                                "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                                "Jutiapa"))
 # Sexo Piloto recodificacion
@@ -229,7 +229,7 @@ ht$tipo_veh <- as.numeric(ht$tipo_veh)
 #Color vehiculo recodificacion (se queda como character)
 ht15$color_veh <-  mapvalues(ht15$color_veh, 
                          from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                               "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                               "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                , "Aqua", "Morado", "Rosado", "Ignorado"))
 
 # Modelo Vehiculo recodificacion
@@ -239,11 +239,11 @@ ht15$modelo_veh <- mapvalues(ht15$modelo_veh, from=9999, to="Ignorado")
 
 causaAccLabels <- as.vector(as.data.frame(table(as.factor(ht$causa_acc)))$Var1)
 ht$causa_acc <- mapvalues(ht$causa_acc, 
-                          from=causaAccLabels, to=c("Atropello", "Atropello", "Ca√≠da", "Ca√≠da", "Choque", "Colisi√≥n", "Colisi√≥n", "Cat√°strofe"
+                          from=causaAccLabels, to=c("Atropello", "Atropello", "CaÌda", "CaÌda", "Choque", "ColisiÛn", "ColisiÛn", "Cat·strofe"
                                                     , "Empotro", "Ignorado", "Vuelco", "Vuelco"))
 ht15$causa_acc <- mapvalues(ht15$causa_acc, 
-                            from=c(1:12,99), to=c("Colisi√≥n", "Choque", "Vuelco", "Ca√≠da","Atropello", "Perdida de control", "Colisi√≥n contra animal",
-                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec√°nicos", "Incendio", "Ignorado"))
+                            from=c(1:12,99), to=c("ColisiÛn", "Choque", "Vuelco", "CaÌda","Atropello", "Perdida de control", "ColisiÛn contra animal",
+                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec·nicos", "Incendio", "Ignorado"))
 
 # Mayor menor recodificacion
 ht$mayor_men <- mapvalues(ht$mayor_men, from=c("Mayor", "Menor", "Ignorado"), to=c(1,2,9))
@@ -257,7 +257,7 @@ ht <- full_join(ht, ht15)
 rm(ht15)
 
 
-ht16$n√∫m_corre <- NULL
+ht16$n˙m_corre <- NULL
 ht16$g_hora <- NULL
 ht16$g_hora_5 <- NULL
 ht16$g_modelo_veh <- NULL
@@ -269,17 +269,17 @@ ht16$hora_ocu <- as.character(ht16$hora_ocu)
 ht16$areag_ocu <- as.numeric(ht16$areag_ocu)
 ht16$zona_ocu <- as.numeric(ht16$zona_ocu)
 ht16$muni_ocu <- as.numeric(ht16$muni_ocu)
-ht16$depto_ocu <- mapvalues(ht16$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+ht16$depto_ocu <- mapvalues(ht16$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                                "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                                "Jutiapa"))
 ht16$color_veh <-  mapvalues(ht16$color_veh, 
                              from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                                   "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                   "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                    , "Aqua", "Morado", "Rosado", "Ignorado"))
 ht16$modelo_veh <- mapvalues(ht16$modelo_veh, from=9999, to="Ignorado")
 ht16$causa_acc <- mapvalues(ht16$causa_acc, 
-                            from=c(1:12,99), to=c("Colisi√≥n", "Choque", "Vuelco", "Ca√≠da","Atropello", "Perdida de control", "Colisi√≥n contra animal",
-                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec√°nicos", "Incendio", "Ignorado"))
+                            from=c(1:12,99), to=c("ColisiÛn", "Choque", "Vuelco", "CaÌda","Atropello", "Perdida de control", "ColisiÛn contra animal",
+                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec·nicos", "Incendio", "Ignorado"))
 ht16$marca_veh <- mapvalues(ht16$marca_veh, from=999, to="Ignorado")
 
 
@@ -288,7 +288,7 @@ ht16$marca_veh <- mapvalues(ht16$marca_veh, from=999, to="Ignorado")
 ht <- full_join(ht,ht16)
 rm(ht16)
 
-ht17$n√∫m_corre <- NULL
+ht17$n˙m_corre <- NULL
 ht17$g_hora <- NULL
 ht17$g_hora_5 <- NULL
 ht17$g_modelo_veh <- NULL
@@ -300,17 +300,17 @@ colnames(ht17) <- c("ano_ocu", "dia_ocu", "hora_ocu", "mes_ocu", "dia_sem_ocu", 
 ht17$hora_ocu <- as.character(ht17$hora_ocu)
 ht17$zona_ocu <- as.numeric(ht17$zona_ocu)
 ht17$muni_ocu <- as.numeric(ht17$muni_ocu)
-ht17$depto_ocu <- mapvalues(ht17$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+ht17$depto_ocu <- mapvalues(ht17$depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                                "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                                "Jutiapa"))
 ht17$color_veh <-  mapvalues(ht17$color_veh, 
                              from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                                   "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                   "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                    , "Aqua", "Morado", "Rosado", "Ignorado"))
 ht17$modelo_veh <- mapvalues(ht17$modelo_veh, from=9999, to="Ignorado")
 ht17$causa_acc <- mapvalues(ht17$causa_acc, 
-                            from=c(1:12,99), to=c("Colisi√≥n", "Choque", "Vuelco", "Ca√≠da","Atropello", "Perdida de control", "Colisi√≥n contra animal",
-                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec√°nicos", "Incendio", "Ignorado"))
+                            from=c(1:12,99), to=c("ColisiÛn", "Choque", "Vuelco", "CaÌda","Atropello", "Perdida de control", "ColisiÛn contra animal",
+                                                  "Exceso de pasaje", "Asfalto mojado", "Exceso de velocidad", "Desperfectos mec·nicos", "Incendio", "Ignorado"))
 ht17$marca_veh <- mapvalues(ht17$marca_veh, from=999, to="Ignorado")
 
 
@@ -319,7 +319,7 @@ ht <- full_join(ht, ht17)
 rm(ht17)
 ```
 
-Para concluir la unificaci√≥n de la base de datos de hechos de tr√°nsito se guard√≥ como archivo CSV en la carpeta de **Results**
+Para concluir la unificaciÛn de la base de datos de hechos de tr·nsito se guardÛ como archivo CSV en la carpeta de **Results**
 ```{r}
 write.csv(ht, "Results/ht09_17.csv", row.names = F)
 head(ht)
@@ -327,7 +327,7 @@ head(ht)
 
 Fallecidos y Lesionados
 =====================================
-Para facilitar el proceso de acceso a la informaci√≥n se decidi√≥ convertir todos los archivos a formato CSV. Despues se procedi√≥ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaci√≥n de una forma constante mientras exista el repositorio. Se decidi√≥ tomar este paso para lidiar con un error de programaci√≥n de la p√°gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaci√≥n de la descarga imposible. El primer *snippet* de c√≥digo muestra como se descargaron los archivos del repositorio de github. 
+Para facilitar el proceso de acceso a la informaciÛn se decidiÛ convertir todos los archivos a formato CSV. Despues se procediÛ a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la informaciÛn de una forma constante mientras exista el repositorio. Se decidiÛ tomar este paso para lidiar con un error de programaciÛn de la p·gina del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatizaciÛn de la descarga imposible. El primer *snippet* de cÛdigo muestra como se descargaron los archivos del repositorio de github. 
 
 ```{r}
 ## Read all FL dataframes by year
@@ -342,11 +342,11 @@ fl15 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/Da
 fl16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16FL.csv")
 fl17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17FL.csv")
 ```
-Despu√©s de descargar las bases de datos se procedi√≥ a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de c√≥digos](https://github.com/Rafalp190/DSP1-UVG).  
+DespuÈs de descargar las bases de datos se procediÛ a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de cÛdigos](https://github.com/Rafalp190/DSP1-UVG).  
 
-El siguiente paso consisti√≥ en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).  
+El siguiente paso consistiÛ en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).  
 
-Seguido de la unificaci√≥n de las bases de datos por medio de un **full_join**.  
+Seguido de la unificaciÛn de las bases de datos por medio de un **full_join**.  
 
 ```{r}
 ## Determine ColNames to use for Join of f09 and l09
@@ -398,7 +398,7 @@ rm(fl09)
 rm(fl10)
 
 ```
-A continaci√≥n se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realiz√≥ en la parte descrita anteriormente.
+A continaciÛn se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realizÛ en la parte descrita anteriormente.
 ```{r}
 ##Determine colnames for joining fl and fl11
 namesfl <- colnames(fl)
@@ -485,12 +485,12 @@ rm(fl14)
 namesfl <- colnames(fl)
 
 fl15 <- fl15 %>%
-  mutate(n√∫m_corre = NULL) %>%
+  mutate(n˙m_corre = NULL) %>%
   mutate(g_hora = NULL) %>%
   mutate(g_hora_5 = NULL) %>%
   mutate(mayor_menor = NULL) %>%
-  mutate(g_edad_80ym√°s = NULL) %>%
-  mutate(g_edad_60ym√°s = NULL) %>%
+  mutate(g_edad_80ym·s = NULL) %>%
+  mutate(g_edad_60ym·s = NULL) %>%
   mutate(edad_quinquenales = NULL)
 
 oldnamesfl15 <- colnames(fl15)
@@ -504,7 +504,7 @@ fl15 <- fl15 %>%
   rename_at(vars(oldnamesfl15), ~ newnamesfl15) %>%
   mutate(mes_ocu = as.integer(mes_ocu))
 
-# Desde el anio 2015 decidieron codificar las variables, consideramos que es m√°s eficiente a nivel pr√°ctico codificar las variables de mes y dia de 
+# Desde el anio 2015 decidieron codificar las variables, consideramos que es m·s eficiente a nivel pr·ctico codificar las variables de mes y dia de 
 # la semana a variables numericas
 
 # Recodificaciones
@@ -515,8 +515,8 @@ fl <- fl %>%
                                              "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre",
                                              "Noviembre", "Diciembre"),
                           to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
-  mutate(dia_sem_ocu = as.numeric(mapvalues(dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Mi√©rcoles", 
-                                                                "Jueves", "Viernes", "Sabado", "S√°bado",
+  mutate(dia_sem_ocu = as.numeric(mapvalues(dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "MiÈrcoles", 
+                                                                "Jueves", "Viernes", "Sabado", "S·bado",
                                                                 "Domingo"), to=c(1,2,3,3,4,5,6,6,7)))) %>%
   mutate(sexo_pil = as.numeric(mapvalues(sexo_pil, from=c("Hombre", "Mujer", "Ignorado"), to=c(1,2,9)))) %>%
   mutate(estado_pil = as.numeric(mapvalues(estado_pil, from=c("Bajo efectos de alcohol", "Ebrio", "Normal",
@@ -525,18 +525,18 @@ fl <- fl %>%
                               to=c(1, 17, 7, 12, 6, 5, 5, 2, 15, 16,
                                    99, 8, 9, 4, 14, 11, 3, 3, 10, 13)))) %>%
   mutate(causa_acc = mapvalues(causa_acc, from = as.vector(as.data.frame(table(as.factor(causa_acc)))$Var1), 
-                               to = c("Atropello", "Ca√≠da","Ca√≠da","Choque", "Choque", "Colisi?n","Colisi√≥n",
-                                      "Colisi√≥n", "Derrumbe", "Ca√≠da", "Empotro", "Derrumbe", "Ignorado", "Vuelco",
+                               to = c("Atropello", "CaÌda","CaÌda","Choque", "Choque", "Colisi?n","ColisiÛn",
+                                      "ColisiÛn", "Derrumbe", "CaÌda", "Empotro", "Derrumbe", "Ignorado", "Vuelco",
                                       "Vuelco","Vuelco"))) %>%
   mutate(areag_ocu = as.numeric(mapvalues(areag_ocu, from = c("Rural", "Urbano"), to = c(2, 1))))
 
 
 fl15 <- fl15 %>%
-  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                                         "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                                         "Jutiapa"))) %>%
   mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                                "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                 , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
   mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
   mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
@@ -545,7 +545,7 @@ fl15 <- fl15 %>%
                                                         "Noviembre", "Diciembre"),
                                         to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
   mutate(lesio_fall = mapvalues(lesio_fall, from = c(1,2), c("Fallecido", "Lesionado"))) %>%
-  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi?n", "Choque", "Vuelco", "Ca√≠da", "Atropello")))
+  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi?n", "Choque", "Vuelco", "CaÌda", "Atropello")))
 
 
 ##Join between fl and fl15
@@ -556,12 +556,12 @@ rm(fl15)
 namesfl <- colnames(fl)
 
 fl16 <- fl16 %>%
-  mutate(n√∫m_corre = NULL) %>%
+  mutate(n˙m_corre = NULL) %>%
   mutate(g_hora = NULL) %>%
   mutate(g_hora_5 = NULL) %>%
   mutate(mayor_menor = NULL) %>%
-  mutate(g_edad_80ym√°s = NULL) %>%
-  mutate(g_edad_60ym√°s = NULL) %>%
+  mutate(g_edad_80ym·s = NULL) %>%
+  mutate(g_edad_60ym·s = NULL) %>%
   mutate(edad_quinquenales = NULL)
 
 oldnamesfl16 <- colnames(fl16)
@@ -572,11 +572,11 @@ newnamesfl16 <- c(namesfl[1], "ano_ocu", oldnamesfl16[3], oldnamesfl16[4], "dia_
 
 fl16 <- fl16 %>%
   rename_at(vars(oldnamesfl16), ~ newnamesfl16) %>%
-  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                              "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                              "Jutiapa"))) %>%
   mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                                                "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                                "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                                 , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
   mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
   mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
@@ -585,7 +585,7 @@ fl16 <- fl16 %>%
                                                         "Noviembre", "Diciembre"),
                                         to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
   mutate(lesio_fall = mapvalues(lesio_fall, from = c(1,2), c("Fallecido", "Lesionado"))) %>%
-  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi√≥n", "Choque", "Vuelco", "Ca√≠da", "Atropello")))
+  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("ColisiÛn", "Choque", "Vuelco", "CaÌda", "Atropello")))
   
 
 ##Join between fl and fl16
@@ -596,12 +596,12 @@ rm(fl16)
 namesfl <- colnames(fl)
 
 fl17 <- fl17 %>%
-  mutate(n√∫m_corre = NULL) %>%
+  mutate(n˙m_corre = NULL) %>%
   mutate(g_hora = NULL) %>%
   mutate(g_hora_5 = NULL) %>%
   mutate(mayor_menor = NULL) %>%
-  mutate(g_edad_80ym√°s = NULL) %>%
-  mutate(g_edad_60ym√°s = NULL) %>%
+  mutate(g_edad_80ym·s = NULL) %>%
+  mutate(g_edad_60ym·s = NULL) %>%
   mutate(edad_quinquenales = NULL)
 
 oldnamesfl17 <- colnames(fl17)
@@ -612,11 +612,11 @@ newnamesfl17 <- c("ano_ocu", "dia_ocu", oldnamesfl17[3], oldnamesfl17[4], "dia_s
 
 fl17 <- fl17 %>%
   rename_at(vars(oldnamesfl17), ~ newnamesfl17) %>%
-  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatep√©quez","Chimaltenango","Escuintla","Santa rosa","Solol√°","Totonicap√°n","Quetzaltenango","Suchitep√©quez",
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","SacatepÈquez","Chimaltenango","Escuintla","Santa rosa","Solol·","Totonicap·n","Quetzaltenango","SuchitepÈquez",
                                                              "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
                                                              "Jutiapa"))) %>%
   mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
-                                                                "Celeste", "Corinto", "Caf√©", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                                "Celeste", "Corinto", "CafÈ", "Beige", "Turquesa", "Marfil", "Anaranjado"
                                                                 , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
   mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
   mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
@@ -639,9 +639,9 @@ write.csv(fl, file = "Results/fl09_17.csv", row.names = F)
 
 Vehiculos Involucrados
 =====================================
-Para el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada a√±o se agregaban campos que se pueden calcular , esto los vuelve redundantes.
+Para el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada aÒo se agregaban campos que se pueden calcular , esto los vuelve redundantes.
 
-A√±o 2010: se agrego una columna con el a√±o del caso individual
+AÒo 2010: se agrego una columna con el aÒo del caso individual
 ```{r}
 #renombrando vi 10
 new10 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10VI.csv")
@@ -659,12 +659,12 @@ colnames(new10) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","
 new10$ano_ocu <- 2010
 ```
 
-A√±os 2012: Se quita la columna num_vehi ya que es solo un contador innecesario. Se agrega el a√±o de occurencia
+AÒos 2012: Se quita la columna num_vehi ya que es solo un contador innecesario. Se agrega el aÒo de occurencia
 ```{r}
 
 
 summary(new12)
-new12$num_veh√≠ <- NULL
+new12$num_vehÌ <- NULL
 colnames(new12) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","muni_ocu","areag_ocu",
                    "zona_ocu","sexo_pil","edad_pil","grupo_edad_pil","mayor_men","estado_pil","tipo_veh","color_veh",
                    "modelo_veh","causa_acc")
@@ -672,7 +672,7 @@ new12$ano_ocu <- 2012
 
 ```
 
-A√±os 2013: Se quita la columna num_hecho ya que es solo un contador innecesario. Se agrega el a√±o de occurencia
+AÒos 2013: Se quita la columna num_hecho ya que es solo un contador innecesario. Se agrega el aÒo de occurencia
 ```{r}
 
 #renombrando vi 13
@@ -685,7 +685,7 @@ colnames(new13) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","
 new13$ano_ocu <- 2013
 ```
 
-A√±os 2014: Se quita la columna num_correlativo y corre_base ya que son innecesarios. Se agrega el a√±o de occurencia y se renombran las columnas al estandard del grupo. 
+AÒos 2014: Se quita la columna num_correlativo y corre_base ya que son innecesarios. Se agrega el aÒo de occurencia y se renombran las columnas al estandard del grupo. 
 ```{r}
 
 #renombrando vi 14
@@ -699,16 +699,16 @@ colnames(new14) <- c("dia_ocu","dia_sem_ocu","hora_ocu","grupo_hor_ocu","mes_ocu
 new14$ano_ocu <- 2014
 ```
 
-A√±os 2015: Se quita la columna n√∫m_corre, g_hora, g_hora_5,g_edad_60ym√°s, g_edad_80ym√°s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el a√±o de occurencia y se renombran las columnas al estandard del grupo. 
+AÒos 2015: Se quita la columna n˙m_corre, g_hora, g_hora_5,g_edad_60ym·s, g_edad_80ym·s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el aÒo de occurencia y se renombran las columnas al estandard del grupo. 
 ```{r}
 
 #remombrado vi15
 
-new15$n√∫m_corre <- NULL
+new15$n˙m_corre <- NULL
 new15$g_hora <- NULL
 new15$g_hora_5 <- NULL
-new15$g_edad_60ym√°s <- NULL
-new15$g_edad_80ym√°s <- NULL
+new15$g_edad_60ym·s <- NULL
+new15$g_edad_80ym·s <- NULL
 new15$edad_quinquenales <-NULL
 new15$g_modelo_veh <- NULL
 summary(new15)
@@ -718,17 +718,17 @@ colnames(new15) <- c("mes_ocu", "dia_ocu","dia_sem_ocu","hora_ocu","depto_ocu","
 new15$ano_ocu <- 2015
 ```
 
-A√±os 2016: Se quita la columna n√∫m_corre, g_hora, g_hora_5,g_edad_60ym√°s, g_edad_80ym√°s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el a√±o de occurencia y se renombran las columnas al estandard del grupo. 
+AÒos 2016: Se quita la columna n˙m_corre, g_hora, g_hora_5,g_edad_60ym·s, g_edad_80ym·s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el aÒo de occurencia y se renombran las columnas al estandard del grupo. 
 ```{r}
 
 #renombrando vi16
 
-new16$a√±o_ocu <- NULL
+new16$aÒo_ocu <- NULL
 new16$num_corre <- NULL
 new16$g_hora <- NULL
 new16$g_hora_5 <- NULL
-new16$g_edad_60ym√°s <- NULL
-new16$g_edad_80ym√°s <- NULL
+new16$g_edad_60ym·s <- NULL
+new16$g_edad_80ym·s <- NULL
 new16$edad_quinquenales <-NULL
 new16$g_modelo_veh <- NULL
 summary(new16)
@@ -738,17 +738,17 @@ colnames(new16) <- c("dia_ocu","hora_ocu","mes_ocu","dia_sem_ocu","muni_ocu","de
 new16$ano_ocu <- 2016
 ```
 
-A√±os 2017: Se quita la columna n√∫m_corre, g_hora, g_hora_5,g_edad_60ym√°s, g_edad_80ym√°s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el a√±o de occurencia y se renombran las columnas al estandard del grupo. 
+AÒos 2017: Se quita la columna n˙m_corre, g_hora, g_hora_5,g_edad_60ym·s, g_edad_80ym·s, edad_quinquenales y g_modelo_veh ya que son innecesarios. Se agrega el aÒo de occurencia y se renombran las columnas al estandard del grupo. 
 ```{r}
 
 #renombrando vi17
 
-new17$a√±o_ocu <- NULL
-new17$n√∫m_corre <- NULL
+new17$aÒo_ocu <- NULL
+new17$n˙m_corre <- NULL
 new17$g_hora <- NULL
 new17$g_hora_5 <- NULL
-new17$g_edad_60ym√°s <- NULL
-new17$g_edad_80ym√°s <- NULL
+new17$g_edad_60ym·s <- NULL
+new17$g_edad_80ym·s <- NULL
 new17$edad_quinquenales <-NULL
 new17$g_modelo_veh <- NULL
 summary(new17)
@@ -862,4 +862,204 @@ write.csv(vi, "Results/vi10_17.csv", row.names = F)
 
 Base Unificada INE 2009-2017
 =====================================
-FOOa
+Al final se procediÛ a terminar de limpiar las bases de datos, unificar los tipos de datos y a limpiar outliers, previo a hacer un **full_join**. Adem·s, fue necesario realizar un diccionario de cÛdigos de municipios para convertir algunos municipios de la base de datos "VehÌculos involucrados" que se describÌan por el nombre del municipio, mezclados con cÛdigos.
+
+Carga de bases de datos:
+```{r}
+require("plyr")
+require("dplyr")
+
+#JOINS VI y HT
+
+vi <- read.csv("Results/vi10_17.csv")
+ht <- read.csv("Results/HT09_17.csv")
+fl <- read.csv("Results/fl09_17.csv")
+
+mun_dicc <- read.csv("dicc_municipios.csv")
+
+```
+
+Limpieza de columnas innecesarias, codificaciÛn adecuada de variables y conversiÛn de tipos de datos:
+```{r}
+
+vi$mes_ocu <- as.factor(vi$mes_ocu)
+ht$mes_ocu <- as.factor(ht$mes_ocu)
+vi$dia_sem_ocu <- as.factor(vi$dia_sem_ocu)
+ht$dia_sem_ocu <- as.factor(ht$dia_sem_ocu)
+vi$areag_ocu <- as.factor(vi$areag_ocu)
+ht$areag_ocu <- as.factor(ht$areag_ocu)
+vi$sexo_pil <- as.factor(vi$sexo_pil)
+ht$sexo_pil <- as.factor(ht$sexo_pil)
+vi$estado_pil <- as.factor(vi$estado_pil)
+ht$estado_pil <- as.factor(ht$estado_pil)
+vi$tipo_veh <- as.factor(vi$tipo_veh)
+ht$tipo_veh <- as.factor(ht$tipo_veh)
+vi$modelo_veh <- as.factor(vi$modelo_veh)
+ht$modelo_veh <- as.factor(ht$modelo_veh)
+vi$muni_ocu <- as.factor(vi$muni_ocu)
+ht$muni_ocu <- as.factor(ht$muni_ocu)
+vi$mayor_men <- mapvalues(vi$mayor_men, from=c("Mayor", "Menor", "Ignorado"), to=c(1,2,9))
+vi$mayor_men <- as.factor(vi$mayor_men)
+ht$mayor_men <- as.factor(ht$mayor_men)
+
+vi$grupo_eda_pil <- NULL
+vi$grupo_edad_pil <- NULL
+vi$grupo_hor_ocu <- NULL
+vi$grupo_mod_veh <- NULL
+# mes ocurrencia recodificacion
+vi$mes_ocu <- mapvalues(vi$mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre"
+                                           , "Noviembre", "Diciembre"), to=c(1,2,3,4,5,6,7,8,9,9,10,11,12))
+vi$mes_ocu <- as.numeric(vi$mes_ocu)
+
+# dia semana ocurrencia recodificacion
+vi$dia_sem_ocu <- mapvalues(vi$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "MiÈrcoles", "Jueves", "Viernes", "Sabado", "S·bado", "Domingo")
+                            , to=c(1,2,3,3,4,5,6,6,7))
+vi$dia_sem_ocu <- as.numeric(vi$dia_sem_ocu)
+
+tipovehLabels <- as.vector(as.data.frame(table(as.factor(vi$tipo_veh)))$Var1)
+vi$tipo_veh <- mapvalues(vi$tipo_veh, from=tipovehLabels, to=c(1,10,11,12,13,14,15,16,17,18,2,20,22,3,4,5,6,7,8,9,99,1,1,18,17,7,12,6,5,5,2,15,15,16,99,8,9,14,4,14,11,3,3,10,13))
+vi$tipo_veh <- as.numeric(vi$tipo_veh)
+# Sexo Piloto recodificacion
+vi$sexo_pil <- mapvalues(vi$sexo_pil, from=c("Hombre", "Mujer", "Ignorado"), to=c(1,2,9))
+# Estado Piloto recodificacion
+vi$estado_pil <- mapvalues(vi$estado_pil, from=c("Bajo efectos de alcohol", "Ebrio", "Normal", "Ignorado"), to=c(2,2,1,9))
+vi$estado_pil <- as.numeric(vi$estado_pil)
+
+vi$areag_ocu <- mapvalues(vi$areag_ocu, from=c("Rural", "RURAL","Urbano", "URBANO"), to=c(2,2,1,1))
+
+causaAccLabels <- as.vector(as.data.frame(table(as.factor(vi$causa_acc)))$Var1)           
+vi$causa_acc <- mapvalues(vi$causa_acc, 
+                          from=causaAccLabels, to=c("ColisiÛn", "Choque", "Vuelco", "CaÌda", "Atropello", "Ignorado",
+                                                    "Atropello",  "CaÌda", "CaÌda", "CaÌda", "Choque","Choque", "ColisiÛn","ColisiÛn", "ColisiÛn", "Cat·strofe"
+                                                    , "Ignorado","Ignorado", "Vuelco", "Vuelco"))
+
+
+vi$mes_ocu <- as.factor(vi$mes_ocu)
+ht$mes_ocu <- as.factor(ht$mes_ocu)
+vi$dia_sem_ocu <- as.factor(vi$dia_sem_ocu)
+ht$dia_sem_ocu <- as.factor(ht$dia_sem_ocu)
+vi$areag_ocu <- as.factor(vi$areag_ocu)
+ht$areag_ocu <- as.factor(ht$areag_ocu)
+vi$sexo_pil <- as.factor(vi$sexo_pil)
+vi$estado_pil <- as.factor(vi$estado_pil)
+ht$estado_pil <- as.factor(ht$estado_pil)
+vi$tipo_veh <- as.factor(vi$tipo_veh)
+ht$tipo_veh <- as.factor(ht$tipo_veh)
+vi$modelo_veh <- as.factor(vi$modelo_veh)
+ht$modelo_veh <- as.factor(ht$modelo_veh)
+vi$muni_ocu <- as.factor(vi$muni_ocu)
+ht$muni_ocu <- as.factor(ht$muni_ocu)
+
+```
+
+
+```{r}
+#Clear ht outliers
+
+ht_clear <- ht %>%
+  mutate(hora_ocu = ifelse(hora_ocu != 99, hora_ocu, NA)) %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
+                               to = c("QuichÈ", "Jutiapa", "PetÈn", "Jalapa", "SuchitepÈquez", "Izabal", "San Marcos",
+                                      "Baja Verapaz", "Guatemala", "Chiquimula", "Huehuetenango", "SacatepÈquez",
+                                      "Chimaltenango", "Santa Rosa", "Escuintla", "Zacapa", "Solol·", "Retalhuleu",
+                                      "Quetzaltenango", "El Progreso", "Alta Verapaz", "Totonicap·n", "Alta Verapaz",
+                                      "SuchitepÈquez", "PetÈn", "QuichÈ", "SacatepÈquez", "Totonicap·n", "Santa Rosa",
+                                      "Solol·", "El Progreso"))) %>%
+  mutate(sexo_pil = ifelse(sexo_pil != 9, sexo_pil, NA)) %>%
+  mutate(sexo_pil = ifelse(sexo_pil != 3, sexo_pil, NA)) %>%
+  mutate(edad_pil = ifelse(edad_pil != 999, edad_pil, NA)) %>%
+  mutate(edad_pil = ifelse(edad_pil >= 5, edad_pil, NA)) %>%
+  mutate(estado_pil = ifelse(estado_pil != 9, estado_pil, NA)) %>%
+  mutate(tipo_veh = ifelse(tipo_veh != 99, tipo_veh, NA)) %>%
+  mutate(color_veh = ifelse(color_veh != "Ignorado", color_veh, NA)) %>%
+  mutate(modelo_veh = ifelse(modelo_veh == "Ignorado" | modelo_veh == "IGNORADO", NA, modelo_veh)) %>%
+  mutate(causa_acc = ifelse(causa_acc == "Ignorado", NA, causa_acc)) %>%
+  mutate(zona_ocu = ifelse(zona_ocu != 99, zona_ocu, NA)) %>%
+  mutate(mayor_men = ifelse(mayor_men == 3 | mayor_men == 9, NA, mayor_men)) %>%
+  mutate(marca_veh = ifelse(marca_veh == "Ignorado", NA, marca_veh))
+
+#Clear vi outliers
+
+
+vi_clear <- vi %>%
+  mutate(hora_ocu = ifelse(hora_ocu != 99, hora_ocu, NA)) %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
+                               to = c("El Progreso", "Quetzaltenango", "Huehuetenango", "Alta Verapaz", "Guatemala", "Solol·",  "Chiquimula",
+                                      "PetÈn", "Escuintla", "SuchitepÈquez", "Izabal", "San Marcos", "Jutiapa", "Chimaltenango",
+                                      "Totonicap·n", "QuichÈ", "Zacapa", "Santa Rosa",  "SacatepÈquez", "Jalapa", "Baja Verapaz",
+                                      "Retalhuleu", "SuchitepÈquez", "PetÈn", "QuichÈ", "SacatepÈquez", "Totonicap·n", "Santa Rosa",
+                                      "Solol·", "Guatemala", "Santa Rosa", "SuchitepÈquez", "Baja Verapaz", "Jalapa",
+                                      "Chiquimula", "Escuintla", "San Marcos", "Alta Verapaz", "Izabal", "Solol·", "Zacapa", "SacatepÈquez", 
+                                      "Jutiapa", "Quetzaltenango", "PetÈn", "Chimaltenango", "SuchitepÈquez", "Huehuetenango", "El Progreso",
+                                      "QuichÈ", "Totonicap·n"))) %>%
+  mutate(muni_ocu = match(muni_ocu, mun_dicc$id)) %>%
+  mutate(sexo_pil = ifelse(sexo_pil ==  "9", NA, sexo_pil)) %>%
+  mutate(edad_pil = ifelse(edad_pil != 999, edad_pil, NA)) %>%
+  mutate(edad_pil = ifelse(edad_pil >= 5, edad_pil, NA)) %>%
+  mutate(estado_pil = ifelse(as.numeric(estado_pil) > 3, NA, estado_pil)) %>%
+  mutate(color_veh = ifelse(color_veh != "Ignorado", color_veh, NA)) %>%
+  mutate(modelo_veh = ifelse(modelo_veh == 99, NA, modelo_veh)) %>%
+  mutate(zona_ocu = ifelse(zona_ocu != 99, zona_ocu, NA)) %>%
+  mutate(mayor_men = ifelse(as.numeric(mayor_men) == 9 | as.numeric(mayor_men) == 3, NA, mayor_men)) %>%
+  mutate(causa_acc = ifelse(causa_acc == "Ignorado", NA, causa_acc)) %>%
+  mutate(tipo_veh = as.numeric(tipo_veh)) %>%
+  mutate(marca_veh = ifelse(marca_veh == "Ignorado", NA, marca_veh))
+  
+
+
+
+#FL refactor
+fl$mes_ocu <- as.factor(fl$mes_ocu)
+fl$dia_sem_ocu <- as.factor(fl$dia_sem_ocu)
+fl$areag_ocu <- as.factor(fl$areag_ocu)
+fl$sexo_pil <- as.factor(fl$sexo_pil)
+fl$estado_pil <- as.factor(fl$estado_pil)
+fl$tipo_veh <- as.factor(fl$tipo_veh)
+fl$muni_ocu <- as.factor(fl$muni_ocu)
+
+#Clear fl outliers
+fl_clear <- fl %>%
+  mutate(g_edad = NULL) %>%
+  mutate(hora_ocu = ifelse(hora_ocu < 24, hora_ocu, NA)) %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
+                               to = c("Guatemala", "El Progreso", "SacatepÈquez", "Chimaltenango", "Escuintla", "Santa Rosa", "Solol·", "Totonicap·n",
+                                      "Quetzaltenango", "SuchitepÈquez", "Retalhuleu", "San Marcos", "Huehuetenango", "QuichÈ", "Baja Verapaz", "Alta Verapaz",
+                                      "PetÈn", "Izabal", "Zacapa", "Chiquimula", "Jalapa", "Jutiapa", "Huehuetenango", "QuichÈ", 
+                                      "SacatepÈquez", "Solol·", "Totonicap·n", "PetÈn", "SuchitepÈquez",  "Santa Rosa", 
+                                      "El Progreso"
+                                      ))) %>%
+  mutate(zona_ocu = ifelse(zona_ocu != 99, zona_ocu, NA)) %>%
+  mutate(sexo_pil = ifelse(sexo_pil != 9, sexo_pil, NA)) %>%
+  mutate(sexo_pil = ifelse(sexo_pil != 3, sexo_pil, NA)) %>%
+  mutate(edad_pil = ifelse(edad_pil != 999, edad_pil, NA)) %>%
+  mutate(edad_pil = ifelse(edad_pil >= 5, edad_pil, NA)) %>%
+  mutate(lesio_fall = mapvalues(lesio_fall, from = c("Fallecido", "Fallecidos", "Lesionado", "Lesionados"), 
+                                to = c("Fallecido", "Fallecido", "Lesionado", "Lesionado"))) %>%
+  mutate(tipo_veh = ifelse(tipo_veh != 99, tipo_veh, NA)) %>%
+  mutate(color_veh = ifelse(color_veh != "Ignorado", color_veh, NA)) %>%
+  mutate(modelo_veh = ifelse(modelo_veh == "Ignorado" | modelo_veh == "IGNORADO", NA, modelo_veh)) %>%
+  mutate(marca_veh = ifelse(marca_veh == "Ignorado" | marca_veh == "999", NA, as.numeric(marca_veh))) %>%
+  mutate(causa_acc = ifelse(causa_acc == "Ignorado" | causa_acc == "99", NA, causa_acc)) %>%
+  mutate(int_o_noint = ifelse(int_o_noint == 9, NA, int_o_noint)) %>%
+  mutate(mes_ocu = as.factor(mes_ocu)) %>%
+  mutate(areag_ocu = as.factor(areag_ocu)) %>%
+  mutate(muni_ocu = as.factor(muni_ocu)) %>%
+  mutate(dia_sem_ocu = as.factor(dia_sem_ocu)) %>%
+  mutate(estado_pil = as.numeric(estado_pil))
+  
+```
+
+Por ˙ltimo, realizamos los **joins** finales, una conversiÛn de una variable en el ˙ltimo momento y la escritura del archivo **.csv**:
+```{r}
+
+#JOINS
+ine_accidentes <- full_join(ht_clear, fl_clear)
+ine_accidentes <- ine_accidentes %>%
+  mutate(muni_ocu = as.numeric(muni_ocu))
+
+ine_accidentes <- full_join(ine_accidentes, vi_clear)
+
+write.csv(ine_accidentes,"Results/ine_accidentes.csv", row.names = F)
+
+
+```

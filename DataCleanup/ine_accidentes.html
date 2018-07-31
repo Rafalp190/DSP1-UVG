@@ -3753,7 +3753,199 @@ vi &lt;-<span class="st"> </span><span class="kw">full_join</span>(vi, new17)
 </div>
 <div id="base-unificada-ine-2009-2017" class="section level1">
 <h1>Base Unificada INE 2009-2017</h1>
-<p>FOOa</p>
+<p>Al final se procedió a terminar de limpiar las bases de datos, unificar los tipos de datos y a limpiar outliers, previo a hacer un <strong>full_join</strong>. Además, fue necesario realizar un diccionario de códigos de municipios para convertir algunos municipios de la base de datos “Vehículos involucrados” que se describían por el nombre del municipio, mezclados con códigos.</p>
+Carga de bases de datos:
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(<span class="st">&quot;plyr&quot;</span>)
+<span class="kw">require</span>(<span class="st">&quot;dplyr&quot;</span>)
+
+<span class="co">#JOINS VI y HT</span>
+
+vi &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Results/vi10_17.csv&quot;</span>)
+ht &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Results/HT09_17.csv&quot;</span>)
+fl &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Results/fl09_17.csv&quot;</span>)
+
+mun_dicc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;dicc_municipios.csv&quot;</span>)</code></pre></div>
+Limpieza de columnas innecesarias, codificación adecuada de variables y conversión de tipos de datos:
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vi<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>mes_ocu)
+ht<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>mes_ocu)
+vi<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>dia_sem_ocu)
+ht<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>dia_sem_ocu)
+vi<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>areag_ocu)
+ht<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>areag_ocu)
+vi<span class="op">$</span>sexo_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>sexo_pil)
+ht<span class="op">$</span>sexo_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>sexo_pil)
+vi<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>estado_pil)
+ht<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>estado_pil)
+vi<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>tipo_veh)
+ht<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>tipo_veh)
+vi<span class="op">$</span>modelo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>modelo_veh)
+ht<span class="op">$</span>modelo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>modelo_veh)
+vi<span class="op">$</span>muni_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>muni_ocu)
+ht<span class="op">$</span>muni_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>muni_ocu)
+vi<span class="op">$</span>mayor_men &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>mayor_men, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Mayor&quot;</span>, <span class="st">&quot;Menor&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">9</span>))
+vi<span class="op">$</span>mayor_men &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>mayor_men)
+ht<span class="op">$</span>mayor_men &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>mayor_men)
+
+vi<span class="op">$</span>grupo_eda_pil &lt;-<span class="st"> </span><span class="ot">NULL</span>
+vi<span class="op">$</span>grupo_edad_pil &lt;-<span class="st"> </span><span class="ot">NULL</span>
+vi<span class="op">$</span>grupo_hor_ocu &lt;-<span class="st"> </span><span class="ot">NULL</span>
+vi<span class="op">$</span>grupo_mod_veh &lt;-<span class="st"> </span><span class="ot">NULL</span>
+<span class="co"># mes ocurrencia recodificacion</span>
+vi<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>mes_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Enero&quot;</span>, <span class="st">&quot;Febrero&quot;</span>, <span class="st">&quot;Marzo&quot;</span>, <span class="st">&quot;Abril&quot;</span>, <span class="st">&quot;Mayo&quot;</span>, <span class="st">&quot;Junio&quot;</span>, <span class="st">&quot;Julio&quot;</span>, <span class="st">&quot;Agosto&quot;</span>, <span class="st">&quot;Septiembre&quot;</span>, <span class="st">&quot;Septiemre&quot;</span>, <span class="st">&quot;Octubre&quot;</span>
+                                           , <span class="st">&quot;Noviembre&quot;</span>, <span class="st">&quot;Diciembre&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>))
+vi<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(vi<span class="op">$</span>mes_ocu)
+
+<span class="co"># dia semana ocurrencia recodificacion</span>
+vi<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>dia_sem_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Lunes&quot;</span>, <span class="st">&quot;Martes&quot;</span>, <span class="st">&quot;Miercoles&quot;</span>, <span class="st">&quot;Miércoles&quot;</span>, <span class="st">&quot;Jueves&quot;</span>, <span class="st">&quot;Viernes&quot;</span>, <span class="st">&quot;Sabado&quot;</span>, <span class="st">&quot;Sábado&quot;</span>, <span class="st">&quot;Domingo&quot;</span>)
+                            , <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">7</span>))
+vi<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(vi<span class="op">$</span>dia_sem_ocu)
+
+tipovehLabels &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">as.data.frame</span>(<span class="kw">table</span>(<span class="kw">as.factor</span>(vi<span class="op">$</span>tipo_veh)))<span class="op">$</span>Var1)
+vi<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>tipo_veh, <span class="dt">from=</span>tipovehLabels, <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">14</span>,<span class="dv">15</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">18</span>,<span class="dv">2</span>,<span class="dv">20</span>,<span class="dv">22</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">99</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">18</span>,<span class="dv">17</span>,<span class="dv">7</span>,<span class="dv">12</span>,<span class="dv">6</span>,<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">15</span>,<span class="dv">15</span>,<span class="dv">16</span>,<span class="dv">99</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">14</span>,<span class="dv">4</span>,<span class="dv">14</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">10</span>,<span class="dv">13</span>))
+vi<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(vi<span class="op">$</span>tipo_veh)
+<span class="co"># Sexo Piloto recodificacion</span>
+vi<span class="op">$</span>sexo_pil &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>sexo_pil, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Hombre&quot;</span>, <span class="st">&quot;Mujer&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">9</span>))
+<span class="co"># Estado Piloto recodificacion</span>
+vi<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>estado_pil, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Bajo efectos de alcohol&quot;</span>, <span class="st">&quot;Ebrio&quot;</span>, <span class="st">&quot;Normal&quot;</span>, <span class="st">&quot;Ignorado&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>))
+vi<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(vi<span class="op">$</span>estado_pil)
+
+vi<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>areag_ocu, <span class="dt">from=</span><span class="kw">c</span>(<span class="st">&quot;Rural&quot;</span>, <span class="st">&quot;RURAL&quot;</span>,<span class="st">&quot;Urbano&quot;</span>, <span class="st">&quot;URBANO&quot;</span>), <span class="dt">to=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>))
+
+causaAccLabels &lt;-<span class="st"> </span><span class="kw">as.vector</span>(<span class="kw">as.data.frame</span>(<span class="kw">table</span>(<span class="kw">as.factor</span>(vi<span class="op">$</span>causa_acc)))<span class="op">$</span>Var1)           
+vi<span class="op">$</span>causa_acc &lt;-<span class="st"> </span><span class="kw">mapvalues</span>(vi<span class="op">$</span>causa_acc, 
+                          <span class="dt">from=</span>causaAccLabels, <span class="dt">to=</span><span class="kw">c</span>(<span class="st">&quot;Colisión&quot;, &quot;</span>Choque<span class="st">&quot;, &quot;</span>Vuelco<span class="st">&quot;, &quot;</span>Caída<span class="st">&quot;, &quot;</span>Atropello<span class="st">&quot;, &quot;</span>Ignorado<span class="st">&quot;,</span>
+<span class="st">                                                    &quot;</span>Atropello<span class="st">&quot;,  &quot;</span>Caída<span class="st">&quot;, &quot;</span>Caída<span class="st">&quot;, &quot;</span>Caída<span class="st">&quot;, &quot;</span>Choque<span class="st">&quot;,&quot;</span>Choque<span class="st">&quot;, &quot;</span>Colisión&quot;,<span class="st">&quot;Colisión&quot;, &quot;</span>Colisión&quot;, <span class="st">&quot;Catástrofe&quot;</span>
+                                                    , <span class="st">&quot;Ignorado&quot;</span>,<span class="st">&quot;Ignorado&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>, <span class="st">&quot;Vuelco&quot;</span>))
+
+
+vi<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>mes_ocu)
+ht<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>mes_ocu)
+vi<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>dia_sem_ocu)
+ht<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>dia_sem_ocu)
+vi<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>areag_ocu)
+ht<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>areag_ocu)
+vi<span class="op">$</span>sexo_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>sexo_pil)
+vi<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>estado_pil)
+ht<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>estado_pil)
+vi<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>tipo_veh)
+ht<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>tipo_veh)
+vi<span class="op">$</span>modelo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>modelo_veh)
+ht<span class="op">$</span>modelo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>modelo_veh)
+vi<span class="op">$</span>muni_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(vi<span class="op">$</span>muni_ocu)
+ht<span class="op">$</span>muni_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ht<span class="op">$</span>muni_ocu)</code></pre></div>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Clear ht outliers</span>
+
+ht_clear &lt;-<span class="st"> </span>ht <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hora_ocu =</span> <span class="kw">ifelse</span>(hora_ocu <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, hora_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from =</span> <span class="kw">as.vector</span>(<span class="kw">unique</span>(depto_ocu)), 
+                               <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Jutiapa&quot;</span>, <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Jalapa&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Izabal&quot;</span>, <span class="st">&quot;San Marcos&quot;</span>,
+                                      <span class="st">&quot;Baja Verapaz&quot;</span>, <span class="st">&quot;Guatemala&quot;</span>, <span class="st">&quot;Chiquimula&quot;</span>, <span class="st">&quot;Huehuetenango&quot;</span>, <span class="st">&quot;Sacatepéquez&quot;</span>,
+                                      <span class="st">&quot;Chimaltenango&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>, <span class="st">&quot;Escuintla&quot;</span>, <span class="st">&quot;Zacapa&quot;</span>, <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;Retalhuleu&quot;</span>,
+                                      <span class="st">&quot;Quetzaltenango&quot;</span>, <span class="st">&quot;El Progreso&quot;</span>, <span class="st">&quot;Alta Verapaz&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>, <span class="st">&quot;Alta Verapaz&quot;</span>,
+                                      <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Sacatepéquez&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>,
+                                      <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;El Progreso&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">ifelse</span>(sexo_pil <span class="op">!=</span><span class="st"> </span><span class="dv">9</span>, sexo_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">ifelse</span>(sexo_pil <span class="op">!=</span><span class="st"> </span><span class="dv">3</span>, sexo_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">!=</span><span class="st"> </span><span class="dv">999</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">estado_pil =</span> <span class="kw">ifelse</span>(estado_pil <span class="op">!=</span><span class="st"> </span><span class="dv">9</span>, estado_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tipo_veh =</span> <span class="kw">ifelse</span>(tipo_veh <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, tipo_veh, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">ifelse</span>(color_veh <span class="op">!=</span><span class="st"> &quot;Ignorado&quot;</span>, color_veh, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">ifelse</span>(modelo_veh <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span> <span class="op">|</span><span class="st"> </span>modelo_veh <span class="op">==</span><span class="st"> &quot;IGNORADO&quot;</span>, <span class="ot">NA</span>, modelo_veh)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">ifelse</span>(causa_acc <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span>, <span class="ot">NA</span>, causa_acc)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">ifelse</span>(zona_ocu <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, zona_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mayor_men =</span> <span class="kw">ifelse</span>(mayor_men <span class="op">==</span><span class="st"> </span><span class="dv">3</span> <span class="op">|</span><span class="st"> </span>mayor_men <span class="op">==</span><span class="st"> </span><span class="dv">9</span>, <span class="ot">NA</span>, mayor_men)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">ifelse</span>(marca_veh <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span>, <span class="ot">NA</span>, marca_veh))
+
+<span class="co">#Clear vi outliers</span>
+
+
+vi_clear &lt;-<span class="st"> </span>vi <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hora_ocu =</span> <span class="kw">ifelse</span>(hora_ocu <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, hora_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from =</span> <span class="kw">as.vector</span>(<span class="kw">unique</span>(depto_ocu)), 
+                               <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;El Progreso&quot;</span>, <span class="st">&quot;Quetzaltenango&quot;</span>, <span class="st">&quot;Huehuetenango&quot;</span>, <span class="st">&quot;Alta Verapaz&quot;</span>, <span class="st">&quot;Guatemala&quot;</span>, <span class="st">&quot;Sololá&quot;</span>,  <span class="st">&quot;Chiquimula&quot;</span>,
+                                      <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Escuintla&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Izabal&quot;</span>, <span class="st">&quot;San Marcos&quot;</span>, <span class="st">&quot;Jutiapa&quot;</span>, <span class="st">&quot;Chimaltenango&quot;</span>,
+                                      <span class="st">&quot;Totonicapán&quot;</span>, <span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Zacapa&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>,  <span class="st">&quot;Sacatepéquez&quot;</span>, <span class="st">&quot;Jalapa&quot;</span>, <span class="st">&quot;Baja Verapaz&quot;</span>,
+                                      <span class="st">&quot;Retalhuleu&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Sacatepéquez&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>,
+                                      <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;Guatemala&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Baja Verapaz&quot;</span>, <span class="st">&quot;Jalapa&quot;</span>,
+                                      <span class="st">&quot;Chiquimula&quot;</span>, <span class="st">&quot;Escuintla&quot;</span>, <span class="st">&quot;San Marcos&quot;</span>, <span class="st">&quot;Alta Verapaz&quot;</span>, <span class="st">&quot;Izabal&quot;</span>, <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;Zacapa&quot;</span>, <span class="st">&quot;Sacatepéquez&quot;</span>, 
+                                      <span class="st">&quot;Jutiapa&quot;</span>, <span class="st">&quot;Quetzaltenango&quot;</span>, <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Chimaltenango&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Huehuetenango&quot;</span>, <span class="st">&quot;El Progreso&quot;</span>,
+                                      <span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">muni_ocu =</span> <span class="kw">match</span>(muni_ocu, mun_dicc<span class="op">$</span>id)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">ifelse</span>(sexo_pil <span class="op">==</span><span class="st">  &quot;9&quot;</span>, <span class="ot">NA</span>, sexo_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">!=</span><span class="st"> </span><span class="dv">999</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">estado_pil =</span> <span class="kw">ifelse</span>(<span class="kw">as.numeric</span>(estado_pil) <span class="op">&gt;</span><span class="st"> </span><span class="dv">3</span>, <span class="ot">NA</span>, estado_pil)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">ifelse</span>(color_veh <span class="op">!=</span><span class="st"> &quot;Ignorado&quot;</span>, color_veh, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">ifelse</span>(modelo_veh <span class="op">==</span><span class="st"> </span><span class="dv">99</span>, <span class="ot">NA</span>, modelo_veh)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">ifelse</span>(zona_ocu <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, zona_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mayor_men =</span> <span class="kw">ifelse</span>(<span class="kw">as.numeric</span>(mayor_men) <span class="op">==</span><span class="st"> </span><span class="dv">9</span> <span class="op">|</span><span class="st"> </span><span class="kw">as.numeric</span>(mayor_men) <span class="op">==</span><span class="st"> </span><span class="dv">3</span>, <span class="ot">NA</span>, mayor_men)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">ifelse</span>(causa_acc <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span>, <span class="ot">NA</span>, causa_acc)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tipo_veh =</span> <span class="kw">as.numeric</span>(tipo_veh)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">ifelse</span>(marca_veh <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span>, <span class="ot">NA</span>, marca_veh))
+  
+
+
+
+<span class="co">#FL refactor</span>
+fl<span class="op">$</span>mes_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>mes_ocu)
+fl<span class="op">$</span>dia_sem_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>dia_sem_ocu)
+fl<span class="op">$</span>areag_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>areag_ocu)
+fl<span class="op">$</span>sexo_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>sexo_pil)
+fl<span class="op">$</span>estado_pil &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>estado_pil)
+fl<span class="op">$</span>tipo_veh &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>tipo_veh)
+fl<span class="op">$</span>muni_ocu &lt;-<span class="st"> </span><span class="kw">as.factor</span>(fl<span class="op">$</span>muni_ocu)
+
+<span class="co">#Clear fl outliers</span>
+fl_clear &lt;-<span class="st"> </span>fl <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">g_edad =</span> <span class="ot">NULL</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hora_ocu =</span> <span class="kw">ifelse</span>(hora_ocu <span class="op">&lt;</span><span class="st"> </span><span class="dv">24</span>, hora_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">depto_ocu =</span> <span class="kw">mapvalues</span>(depto_ocu, <span class="dt">from =</span> <span class="kw">as.vector</span>(<span class="kw">unique</span>(depto_ocu)), 
+                               <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Guatemala&quot;</span>, <span class="st">&quot;El Progreso&quot;</span>, <span class="st">&quot;Sacatepéquez&quot;</span>, <span class="st">&quot;Chimaltenango&quot;</span>, <span class="st">&quot;Escuintla&quot;</span>, <span class="st">&quot;Santa Rosa&quot;</span>, <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>,
+                                      <span class="st">&quot;Quetzaltenango&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>, <span class="st">&quot;Retalhuleu&quot;</span>, <span class="st">&quot;San Marcos&quot;</span>, <span class="st">&quot;Huehuetenango&quot;</span>, <span class="st">&quot;Quiché&quot;</span>, <span class="st">&quot;Baja Verapaz&quot;</span>, <span class="st">&quot;Alta Verapaz&quot;</span>,
+                                      <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Izabal&quot;</span>, <span class="st">&quot;Zacapa&quot;</span>, <span class="st">&quot;Chiquimula&quot;</span>, <span class="st">&quot;Jalapa&quot;</span>, <span class="st">&quot;Jutiapa&quot;</span>, <span class="st">&quot;Huehuetenango&quot;</span>, <span class="st">&quot;Quiché&quot;</span>, 
+                                      <span class="st">&quot;Sacatepéquez&quot;</span>, <span class="st">&quot;Sololá&quot;</span>, <span class="st">&quot;Totonicapán&quot;</span>, <span class="st">&quot;Petén&quot;</span>, <span class="st">&quot;Suchitepéquez&quot;</span>,  <span class="st">&quot;Santa Rosa&quot;</span>, 
+                                      <span class="st">&quot;El Progreso&quot;</span>
+                                      ))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">zona_ocu =</span> <span class="kw">ifelse</span>(zona_ocu <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, zona_ocu, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">ifelse</span>(sexo_pil <span class="op">!=</span><span class="st"> </span><span class="dv">9</span>, sexo_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sexo_pil =</span> <span class="kw">ifelse</span>(sexo_pil <span class="op">!=</span><span class="st"> </span><span class="dv">3</span>, sexo_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">!=</span><span class="st"> </span><span class="dv">999</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">edad_pil =</span> <span class="kw">ifelse</span>(edad_pil <span class="op">&gt;=</span><span class="st"> </span><span class="dv">5</span>, edad_pil, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">lesio_fall =</span> <span class="kw">mapvalues</span>(lesio_fall, <span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Fallecidos&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>, <span class="st">&quot;Lesionados&quot;</span>), 
+                                <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Fallecido&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>, <span class="st">&quot;Lesionado&quot;</span>))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tipo_veh =</span> <span class="kw">ifelse</span>(tipo_veh <span class="op">!=</span><span class="st"> </span><span class="dv">99</span>, tipo_veh, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">color_veh =</span> <span class="kw">ifelse</span>(color_veh <span class="op">!=</span><span class="st"> &quot;Ignorado&quot;</span>, color_veh, <span class="ot">NA</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">modelo_veh =</span> <span class="kw">ifelse</span>(modelo_veh <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span> <span class="op">|</span><span class="st"> </span>modelo_veh <span class="op">==</span><span class="st"> &quot;IGNORADO&quot;</span>, <span class="ot">NA</span>, modelo_veh)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">marca_veh =</span> <span class="kw">ifelse</span>(marca_veh <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span> <span class="op">|</span><span class="st"> </span>marca_veh <span class="op">==</span><span class="st"> &quot;999&quot;</span>, <span class="ot">NA</span>, <span class="kw">as.numeric</span>(marca_veh))) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">causa_acc =</span> <span class="kw">ifelse</span>(causa_acc <span class="op">==</span><span class="st"> &quot;Ignorado&quot;</span> <span class="op">|</span><span class="st"> </span>causa_acc <span class="op">==</span><span class="st"> &quot;99&quot;</span>, <span class="ot">NA</span>, causa_acc)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">int_o_noint =</span> <span class="kw">ifelse</span>(int_o_noint <span class="op">==</span><span class="st"> </span><span class="dv">9</span>, <span class="ot">NA</span>, int_o_noint)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mes_ocu =</span> <span class="kw">as.factor</span>(mes_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">areag_ocu =</span> <span class="kw">as.factor</span>(areag_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">muni_ocu =</span> <span class="kw">as.factor</span>(muni_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">dia_sem_ocu =</span> <span class="kw">as.factor</span>(dia_sem_ocu)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">estado_pil =</span> <span class="kw">as.numeric</span>(estado_pil))</code></pre></div>
+Por último, realizamos los <strong>joins</strong> finales, una conversión de una variable en el último momento y la escritura del archivo <strong>.csv</strong>:
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#JOINS</span>
+ine_accidentes &lt;-<span class="st"> </span><span class="kw">full_join</span>(ht_clear, fl_clear)
+ine_accidentes &lt;-<span class="st"> </span>ine_accidentes <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">muni_ocu =</span> <span class="kw">as.numeric</span>(muni_ocu))
+
+ine_accidentes &lt;-<span class="st"> </span><span class="kw">full_join</span>(ine_accidentes, vi_clear)
+
+<span class="kw">write.csv</span>(ine_accidentes,<span class="st">&quot;Results/ine_accidentes.csv&quot;</span>, <span class="dt">row.names =</span> F)</code></pre></div>
 </div>
 
 </div>
