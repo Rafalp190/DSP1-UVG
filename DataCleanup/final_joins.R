@@ -3,7 +3,7 @@ require("dplyr")
 
 #JOINS VI y HT
 
-vi <- read.csv("Results/10_17.csv")
+vi <- read.csv("Results/vi10_17.csv")
 ht <- read.csv("Results/HT09_17.csv")
 fl <- read.csv("Results/fl09_17.csv")
 
@@ -37,7 +37,7 @@ vi$mes_ocu <- mapvalues(vi$mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril",
 vi$mes_ocu <- as.numeric(vi$mes_ocu)
 
 # dia semana ocurrencia recodificacion
-vi$dia_sem_ocu <- mapvalues(vi$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Miércoles", "Jueves", "Viernes", "Sabado", "Sábado", "Domingo")
+vi$dia_sem_ocu <- mapvalues(vi$dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Mi?rcoles", "Jueves", "Viernes", "Sabado", "S?bado", "Domingo")
                             , to=c(1,2,3,3,4,5,6,6,7))
 vi$dia_sem_ocu <- as.numeric(vi$dia_sem_ocu)
 
@@ -54,7 +54,7 @@ vi$areag_ocu <- mapvalues(vi$areag_ocu, from=c("Rural", "RURAL","Urbano", "URBAN
 
 causaAccLabels <- as.vector(as.data.frame(table(as.factor(vi$causa_acc)))$Var1)           
 vi$causa_acc <- mapvalues(vi$causa_acc, 
-                          from=causaAccLabels, to=c("Atropello",  "Caída", "Caída", "Caída", "Choque","Choque", "Colisión","Colisión", "Colisión", "Catástrofe"
+                          from=causaAccLabels, to=c("Atropello",  "Ca?da", "Ca?da", "Ca?da", "Choque","Choque", "Colisi?n","Colisi?n", "Colisi?n", "Cat?strofe"
                                                     , "Ignorado","Ignorado", "Vuelco", "Vuelco"))
 
 
@@ -79,12 +79,12 @@ ht$muni_ocu <- as.factor(ht$muni_ocu)
 ht_clear <- ht %>%
   mutate(hora_ocu = ifelse(hora_ocu != 99, hora_ocu, NA)) %>%
   mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
-                               to = c("Quiché", "Jutiapa", "Petén", "Jalapa", "Suchitepéquez", "Izabal", "San Marcos",
-                                      "Baja Verapaz", "Guatemala", "Chiquimula", "Huehuetenango", "Sacatepéquez",
-                                      "Chimaltenango", "Santa Rosa", "Escuintla", "Zacapa", "Sololá", "Retalhuleu",
-                                      "Quetzaltenango", "El Progreso", "Alta Verapaz", "Totonicapán", "Alta Verapaz",
-                                      "Suchitepéquez", "Petén", "Quiché", "Sacatepéquez", "Totonicapán", "Santa Rosa",
-                                      "Sololá", "El Progreso"))) %>%
+                               to = c("Quich?", "Jutiapa", "Pet?n", "Jalapa", "Suchitep?quez", "Izabal", "San Marcos",
+                                      "Baja Verapaz", "Guatemala", "Chiquimula", "Huehuetenango", "Sacatep?quez",
+                                      "Chimaltenango", "Santa Rosa", "Escuintla", "Zacapa", "Solol?", "Retalhuleu",
+                                      "Quetzaltenango", "El Progreso", "Alta Verapaz", "Totonicap?n", "Alta Verapaz",
+                                      "Suchitep?quez", "Pet?n", "Quich?", "Sacatep?quez", "Totonicap?n", "Santa Rosa",
+                                      "Solol?", "El Progreso"))) %>%
   mutate(sexo_pil = ifelse(sexo_pil != 9, sexo_pil, NA)) %>%
   mutate(sexo_pil = ifelse(sexo_pil != 3, sexo_pil, NA)) %>%
   mutate(edad_pil = ifelse(edad_pil != 999, edad_pil, NA)) %>%
@@ -102,11 +102,11 @@ ht_clear <- ht %>%
 vi_clear <- vi %>%
   mutate(hora_ocu = ifelse(hora_ocu != 99, hora_ocu, NA)) %>%
   mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
-                               to = c("El Progreso", "Quetzaltenango", "Huehuetenango", "Alta Verapaz", "Guatemala", "Sololá",  "Chiquimula",
-                                      "Petén", "Escuintla", "Suchitepéquez", "Izabal", "San Marcos", "Jutiapa", "Chimaltenango",
-                                      "Totonicapán", "Quiché", "Zacapa", "Santa Rosa",  "Sacatepéquez", "Jalapa", "Baja Verapaz",
-                                      "Retalhuleu", "Suchitepéquez", "Petén", "Quiché", "Sacatepéquez", "Totonicapán", "Santa Rosa",
-                                      "Sololá"))) %>%
+                               to = c("El Progreso", "Quetzaltenango", "Huehuetenango", "Alta Verapaz", "Guatemala", "Solol?",  "Chiquimula",
+                                      "Pet?n", "Escuintla", "Suchitep?quez", "Izabal", "San Marcos", "Jutiapa", "Chimaltenango",
+                                      "Totonicap?n", "Quich?", "Zacapa", "Santa Rosa",  "Sacatep?quez", "Jalapa", "Baja Verapaz",
+                                      "Retalhuleu", "Suchitep?quez", "Pet?n", "Quich?", "Sacatep?quez", "Totonicap?n", "Santa Rosa",
+                                      "Solol?"))) %>%
   mutate(sexo_pil = ifelse(sexo_pil != "3" | sexo_pil == "9", NA, sexo_pil)) %>%
   mutate(edad_pil = ifelse(edad_pil != 999, edad_pil, NA)) %>%
   mutate(edad_pil = ifelse(edad_pil >= 5, edad_pil, NA)) %>%
@@ -124,7 +124,7 @@ vi_clear <- vi %>%
 #FL refactor
 fl$mes_ocu <- as.factor(fl$mes_ocu)
 fl$dia_sem_ocu <- as.factor(fl$dia_sem_ocu)
-ine_accidentes$areag_ocu <- as.factor(ine_accidentes$areag_ocu)
+#ine_accidentes$areag_ocu <- as.factor(ine_accidentes$areag_ocu)
 fl$areag_ocu <- as.factor(fl$areag_ocu)
 fl$sexo_pil <- as.factor(fl$sexo_pil)
 fl$estado_pil <- as.factor(fl$estado_pil)
@@ -136,11 +136,11 @@ fl_clear <- fl %>%
   mutate(g_edad = NULL) %>%
   mutate(hora_ocu = ifelse(hora_ocu < 24, hora_ocu, NA)) %>%
   mutate(depto_ocu = mapvalues(depto_ocu, from = as.vector(unique(depto_ocu)), 
-                               to = c("Guatemala", "El Progreso", "Sacatepéquez", "Chimaltenango", "Escuintla", "Santa Rosa", "Sololá", "Totonicapán",
-                                      "Quetzaltenango", "Suchitepéquez", "Retalhuleu", "San Marcos", "Huehuetenango", "Quiché", "Baja Verapaz", "Alta Verapaz",
-                                      "Petén", "Izabal", "Zacapa", "Chiquimula", "Jalapa", "Jutiapa", "Huehuetenango", "Quiché", 
-                                      "Sacatepéquez", "Sololá", "Totonicapán", "Petén", "Suchitepéquez",  "Santa Rosa", "Sololá", "Suchitepéquez", 
-                                      "El Progreso", "Sacatepéquez", "Totonicapán"
+                               to = c("Guatemala", "El Progreso", "Sacatep?quez", "Chimaltenango", "Escuintla", "Santa Rosa", "Solol?", "Totonicap?n",
+                                      "Quetzaltenango", "Suchitep?quez", "Retalhuleu", "San Marcos", "Huehuetenango", "Quich?", "Baja Verapaz", "Alta Verapaz",
+                                      "Pet?n", "Izabal", "Zacapa", "Chiquimula", "Jalapa", "Jutiapa", "Huehuetenango", "Quich?", 
+                                      "Sacatep?quez", "Solol?", "Totonicap?n", "Pet?n", "Suchitep?quez",  "Santa Rosa", "Solol?", "Suchitep?quez", 
+                                      "El Progreso", "Sacatep?quez", "Totonicap?n"
                                       ))) %>%
   mutate(zona_ocu = ifelse(zona_ocu != 99, zona_ocu, NA)) %>%
   mutate(sexo_pil = ifelse(sexo_pil != 9, sexo_pil, NA)) %>%
@@ -155,8 +155,11 @@ fl_clear <- fl %>%
   mutate(marca_veh = ifelse(marca_veh == "Ignorado" | marca_veh == "999", NA, as.numeric(marca_veh))) %>%
   mutate(causa_acc = ifelse(causa_acc == "Ignorado" | causa_acc == "99", NA, causa_acc)) %>%
   mutate(int_o_noint = ifelse(int_o_noint == 9, NA, int_o_noint))
-  
-ine_accidentes <- full_join(ine_accidentes, fl)
+
+
+ht_clear$estado_pil <- as.factor(ht_clear$estado_pil)
+fl_clear$estado_pil <- as.factor(fl_clear$estado_pil)
+ine_accidentes <- full_join(ht_clear, fl_clear)
 
 
 write.csv(ine_accidentes,"Results/ine_accidentes.csv", row.names = F)
