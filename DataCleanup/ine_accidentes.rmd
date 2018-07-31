@@ -323,16 +323,331 @@ head(ht)
 
 Fallecidos y Lesionados
 =====================================
-FOO
+Para facilitar el proceso de acceso a la información se decidió convertir todos los archivos a formato CSV. Despues se procedió a colocarlos en un repositorio en [github](https://github.com/Rafalp190/DSP1-UVG). Esto permite acceder a la información de una forma constante mientras exista el repositorio. Se decidió tomar este paso para lidiar con un error de programación de la página del INE. En donde cada vez que se descarga un archivo se genera un archivo con el nombre *codigo_hash.extension*. Notamos que cada vez que se descarga el mismo archivo el codigo hash cambia. Haciendo la automatización de la descarga imposible. El primer *snippet* de código muestra como se descargaron los archivos del repositorio de github. 
+
+```{r}
+## Read all FL dataframes by year
+f09 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09F.csv")
+l09 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/09L.csv")
+fl10 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10FL.csv")
+fl11 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/11FL.csv")
+fl12 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/12FL.csv")
+fl13 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/13FL.csv")
+fl14 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/14FL.csv")
+fl15 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/15FL.csv")
+fl16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16FL.csv")
+fl17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17FL.csv")
+```
+Después de descargar las bases de datos se procedió a unificarlas por pares. Uno de los primeros problemas encontrados al tratar de unificar por pares fueron los diferentes nombres de variables. Para mas detalles sobre las variables y los nombres de variables seleccionados pueden consultar el [libro de códigos](https://github.com/Rafalp190/DSP1-UVG).  
+
+El siguiente paso consistió en la conversion de las distintas variables con el mismo nombre al mismo tipo. (Nota, esto es necesario por la forma en la que *read.csv* interpreta los tipos de cada variable).  
+
+Seguido de la unificación de las bases de datos por medio de un **full_join**.  
+
+```{r}
+## Determine ColNames to use for Join of f09 and l09
+oldnamesf09 <- colnames(f09)
+oldnamesl09 <- colnames(l09)
+newnamesf09 <- c(oldnamesf09[1], oldnamesf09[2], oldnamesf09[3], oldnamesf09[4], oldnamesf09[5], 
+                 oldnamesf09[6], oldnamesf09[7], oldnamesf09[8], oldnamesl09[9], oldnamesf09[10],
+                 oldnamesf09[11], "tipo_veh", "color_veh", "modelo_veh", oldnamesf09[15])
+f09 <- f09 %>%
+  rename_at(vars(oldnamesf09), ~ newnamesf09)
+
+newnamesl09 <- c(oldnamesl09[1], oldnamesl09[2], oldnamesl09[3], oldnamesl09[4], oldnamesl09[5],
+                 oldnamesl09[6], oldnamesl09[7], oldnamesl09[8], oldnamesl09[9], oldnamesl09[10],
+                 newnamesf09[12], newnamesf09[13], newnamesf09[14], oldnamesf09[15])
+
+l09 <- l09 %>%
+  rename_at(vars(oldnamesl09), ~ newnamesl09)
+
+f09 <- f09 %>%
+  mutate(hora_ocu = as.integer(hora_ocu)) %>%
+  mutate(edad_pil = as.integer(edad_pil)) %>%
+  mutate(edad_m1 = NULL) %>%
+  mutate(lesio_fall = "Fallecidos")
+
+l09 <- l09 %>%
+  mutate(lesio_fall = "Lesionados")
+
+##Join between f09 and l09
+fl09 <- full_join(f09, l09) %>%
+  mutate(ano_ocu = 2009) %>%
+  mutate(num_hecho = NULL)
+rm(f09)
+rm(l09)
+
+
+##Determine colnames for joining fl09 and fl10
+oldnamesfl10 <- colnames(fl10)
+newnamesfl10 <- c(oldnamesfl10[1], oldnamesfl10[2], oldnamesfl10[3], oldnamesfl10[4], oldnamesfl10[5],
+                  oldnamesfl10[6], oldnamesfl10[7], "sexo_pil", "edad_pil", oldnamesfl10[10], 
+                  oldnamesfl10[11], "tipo_veh", "causa_acc")
+fl10 <- fl10 %>%
+  rename_at(vars(oldnamesfl10), ~ newnamesfl10) %>%
+  mutate(num_hecho = NULL) %>%
+  mutate(ano_ocu = 2010)
+
+##Join between fl09 and fl10
+fl <- full_join(fl10, fl09)
+rm(fl09)
+rm(fl10)
+
+```
+A continación se desglosa el mismo proceso para todas las bases de datos. En donde en cada paso se tuvo que hacer un poco de limpieza de los valores y de los nombres de variables de la misma forma que se realizó en la parte descrita anteriormente.
+```{r}
+##Determine colnames for joining fl and fl11
+namesfl <- colnames(fl)
+oldnamesfl11 <- colnames(fl11)
+newnamesfl11 <- c(oldnamesfl11[1], oldnamesfl11[2], oldnamesfl11[3], oldnamesfl11[4], oldnamesfl11[5],
+                  oldnamesfl11[6], oldnamesfl11[7], oldnamesfl11[8], oldnamesfl11[9], oldnamesfl11[10],
+                  oldnamesfl11[11], oldnamesfl11[12], oldnamesfl11[13], namesfl[11], namesfl[12],
+                  "marca_veh", namesfl[15], namesfl[16], oldnamesfl11[19])
+fl11 <- fl11 %>%
+  rename_at(vars(oldnamesfl11), ~ newnamesfl11) %>%
+  mutate(num_hecho = NULL) %>%
+  mutate(zona_ocu = as.integer(zona_ocu)) %>%
+  mutate(edad_pil = as.integer(edad_pil)) %>%
+  mutate(edad_m1 = NULL) %>%
+  mutate(ano_ocu = 2011)
+
+##Join between fl and fl11
+fl <- full_join(fl, fl11)
+rm(fl11)
+
+
+##Determine colnames for joining fl and fl12
+namesfl <- colnames(fl)
+oldnamesfl12 <- colnames(fl12)
+newnamesfl12 <- c(oldnamesfl12[1], oldnamesfl12[2], oldnamesfl12[3], oldnamesfl12[4], oldnamesfl12[5],
+                  oldnamesfl12[6], namesfl[18], oldnamesfl12[8], oldnamesfl12[9], namesfl[8], 
+                  namesfl[9], oldnamesfl12[12], namesfl[10], namesfl[11], namesfl[12], namesfl[15],
+                  namesfl[13])
+fl12 <- fl12 %>%
+  rename_at(vars(oldnamesfl12), ~ newnamesfl12) %>%
+  mutate(num_hecho = NULL) %>%
+  mutate(edad_m1 = NULL) %>%
+  mutate(zona_ocu = as.integer(zona_ocu)) %>%
+  mutate(edad_pil = as.integer(edad_pil)) %>%
+  mutate(muni_ocu = as.integer(muni_ocu)) %>%
+  mutate(ano_ocu = 2012)
+
+
+##Join between fl and fl12
+fl <- full_join(fl, fl12) %>%
+  mutate(g_edad = NULL)
+rm(fl12)
+
+##Determine colnames for joining fl and fl13
+namesfl <- colnames(fl)
+oldnamesfl13 <- colnames(fl13)
+newnamesfl13 <- c(oldnamesfl13[1], oldnamesfl13[2], oldnamesfl13[3], oldnamesfl13[4], oldnamesfl13[5],
+                  oldnamesfl13[6], oldnamesfl13[7], oldnamesfl13[8], oldnamesfl13[9], oldnamesfl13[10],
+                  oldnamesfl13[11], oldnamesfl13[12], oldnamesfl13[13], namesfl[10], namesfl[11], 
+                  namesfl[18], namesfl[14], namesfl[15], oldnamesfl13[19])
+
+fl13 <- fl13 %>%
+  rename_at(vars(oldnamesfl13), ~ newnamesfl13) %>%
+  mutate(num_hecho = NULL) %>%
+  mutate(g_edad = NULL) %>%
+  mutate(edad_m1 = NULL) %>%
+  mutate(zona_ocu = as.integer(zona_ocu)) %>%
+  mutate(edad_pil = as.integer(edad_pil)) %>%
+  mutate(ano_ocu = 2013)
+
+##Join between fl and fl13
+fl <- full_join(fl, fl13)
+rm(fl13)
+
+
+##Determine colnames for joining fl and fl14
+namesfl <- colnames(fl)
+oldnamesfl14 <- colnames(fl14)
+newnamesfl14 <- newnamesfl13
+
+fl14 <- fl14 %>%
+  rename_at(vars(oldnamesfl14), ~ newnamesfl14) %>%
+  mutate(num_hecho = NULL) %>%
+  mutate(zona_ocu = as.integer(zona_ocu)) %>%
+  mutate(edad_pil = as.integer(edad_pil)) %>%
+  mutate(edad_m1 = NULL) %>%
+  mutate(ano_ocu = 2014)
+
+##Join between fl and fl14
+fl <- full_join(fl, fl14)
+rm(fl14)
+
+##Determine colnames for joining fl and fl15
+namesfl <- colnames(fl)
+
+fl15 <- fl15 %>%
+  mutate(núm_corre = NULL) %>%
+  mutate(g_hora = NULL) %>%
+  mutate(g_hora_5 = NULL) %>%
+  mutate(mayor_menor = NULL) %>%
+  mutate(g_edad_80ymás = NULL) %>%
+  mutate(g_edad_60ymás = NULL) %>%
+  mutate(edad_quinquenales = NULL)
+
+oldnamesfl15 <- colnames(fl15)
+newnamesfl15 <- c(namesfl[13], oldnamesfl15[2], namesfl[1], namesfl[3], oldnamesfl15[5], 
+                  oldnamesfl15[6], namesfl[17], namesfl[6], oldnamesfl15[9], namesfl[8],
+                  namesfl[9], namesfl[10], oldnamesfl15[13], oldnamesfl15[14], oldnamesfl15[15],
+                  oldnamesfl15[16], oldnamesfl15[17], oldnamesfl15[18], namesfl[12])
+
+
+fl15 <- fl15 %>%
+  rename_at(vars(oldnamesfl15), ~ newnamesfl15) %>%
+  mutate(mes_ocu = as.integer(mes_ocu))
+
+# Desde el anio 2015 decidieron codificar las variables, consideramos que es más eficiente a nivel práctico codificar las variables de mes y dia de 
+# la semana a variables numericas
+
+# Recodificaciones
+
+
+fl <- fl %>%
+   mutate(mes_ocu = as.numeric(mapvalues(mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                             "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre",
+                                             "Noviembre", "Diciembre"),
+                          to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
+  mutate(dia_sem_ocu = as.numeric(mapvalues(dia_sem_ocu, from=c("Lunes", "Martes", "Miercoles", "Miércoles", 
+                                                                "Jueves", "Viernes", "Sabado", "Sábado",
+                                                                "Domingo"), to=c(1,2,3,3,4,5,6,6,7)))) %>%
+  mutate(sexo_pil = as.numeric(mapvalues(sexo_pil, from=c("Hombre", "Mujer", "Ignorado"), to=c(1,2,9)))) %>%
+  mutate(estado_pil = as.numeric(mapvalues(estado_pil, from=c("Bajo efectos de alcohol", "Ebrio", "Normal",
+                                                              "Ignorado"), to=c(2,2,1,9)))) %>%
+  mutate(tipo_veh = as.numeric(mapvalues(tipo_veh, from= as.vector(as.data.frame(table(as.factor(tipo_veh)))$Var1),
+                              to=c(1, 17, 7, 12, 6, 5, 5, 2, 15, 16,
+                                   99, 8, 9, 4, 14, 11, 3, 3, 10, 13)))) %>%
+  mutate(causa_acc = mapvalues(causa_acc, from = as.vector(as.data.frame(table(as.factor(causa_acc)))$Var1), 
+                               to = c("Atropello", "Ca?da","Ca?da","Choque", "Choque", "Colisi?n","Colisi?n",
+                                      "Colisi?n", "Derrumbe", "Ca?da", "Empotro", "Derrumbe", "Ignorado", "Vuelco",
+                                      "Vuelco","Vuelco"))) %>%
+  mutate(areag_ocu = as.numeric(mapvalues(areag_ocu, from = c("Rural", "Urbano"), to = c(2, 1))))
+
+
+fl15 <- fl15 %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatepéquez","Chimaltenango","Escuintla","Santa rosa","Sololá","Totonicapán","Quetzaltenango","Suchitepéquez",
+                                                                        "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
+                                                                        "Jutiapa"))) %>%
+  mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
+                                                "Celeste", "Corinto", "Café", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
+  mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
+  mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
+  mutate(mes_ocu = as.numeric(mapvalues(mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                                        "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre",
+                                                        "Noviembre", "Diciembre"),
+                                        to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
+  mutate(lesio_fall = mapvalues(lesio_fall, from = c(1,2), c("Fallecido", "Lesionado"))) %>%
+  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi?n", "Choque", "Vuelco", "Ca?da", "Atropello")))
+
+
+##Join between fl and fl15
+fl <- full_join(fl, fl15)
+rm(fl15)
+
+##Determine colnames for joining fl and fl16
+namesfl <- colnames(fl)
+
+fl16 <- fl16 %>%
+  mutate(núm_corre = NULL) %>%
+  mutate(g_hora = NULL) %>%
+  mutate(g_hora_5 = NULL) %>%
+  mutate(mayor_menor = NULL) %>%
+  mutate(g_edad_80ymás = NULL) %>%
+  mutate(g_edad_60ymás = NULL) %>%
+  mutate(edad_quinquenales = NULL)
+
+oldnamesfl16 <- colnames(fl16)
+newnamesfl16 <- c(namesfl[1], "ano_ocu", oldnamesfl16[3], oldnamesfl16[4], "dia_sem_ocu",
+                  "muni_ocu", oldnamesfl16[7], "areag_ocu", oldnamesfl16[9], "sexo_pil",
+                  "edad_pil", oldnamesfl16[12], oldnamesfl16[13], oldnamesfl16[14], oldnamesfl16[15],
+                  "causa_acc", oldnamesfl16[17], "lesio_fall", oldnamesfl16[19])
+
+fl16 <- fl16 %>%
+  rename_at(vars(oldnamesfl16), ~ newnamesfl16) %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatepéquez","Chimaltenango","Escuintla","Santa rosa","Sololá","Totonicapán","Quetzaltenango","Suchitepéquez",
+                                                             "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
+                                                             "Jutiapa"))) %>%
+  mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
+                                                                "Celeste", "Corinto", "Café", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                                , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
+  mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
+  mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
+  mutate(mes_ocu = as.numeric(mapvalues(mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                                        "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre",
+                                                        "Noviembre", "Diciembre"),
+                                        to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
+  mutate(lesio_fall = mapvalues(lesio_fall, from = c(1,2), c("Fallecido", "Lesionado"))) %>%
+  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi?n", "Choque", "Vuelco", "Ca?da", "Atropello")))
+  
+
+##Join between fl and fl16
+fl <- full_join(fl, fl16)
+rm(fl16)
+
+##Determine colnames for joining fl and fl16
+namesfl <- colnames(fl)
+
+fl17 <- fl17 %>%
+  mutate(núm_corre = NULL) %>%
+  mutate(g_hora = NULL) %>%
+  mutate(g_hora_5 = NULL) %>%
+  mutate(mayor_menor = NULL) %>%
+  mutate(g_edad_80ymás = NULL) %>%
+  mutate(g_edad_60ymás = NULL) %>%
+  mutate(edad_quinquenales = NULL)
+
+oldnamesfl17 <- colnames(fl17)
+newnamesfl17 <- c("ano_ocu", "dia_ocu", oldnamesfl17[3], oldnamesfl17[4], "dia_sem_ocu",
+                  "muni_ocu", oldnamesfl17[7], oldnamesfl17[8], "sexo_pil", "edad_pil",
+                  oldnamesfl17[11], oldnamesfl17[12], oldnamesfl17[13], oldnamesfl17[14], oldnamesfl17[15],
+                  "causa_acc", "lesio_fall", oldnamesfl17[18])
+
+fl17 <- fl17 %>%
+  rename_at(vars(oldnamesfl17), ~ newnamesfl17) %>%
+  mutate(depto_ocu = mapvalues(depto_ocu, from=c(1:22), to=c("Guatemala","El progreso","Sacatepéquez","Chimaltenango","Escuintla","Santa rosa","Sololá","Totonicapán","Quetzaltenango","Suchitepéquez",
+                                                             "Retalhuleu","San Marcos","Huehuetenango","Quiche","Baja Verapaz","Alta Verapaz","Peten","Izabal","Zacapa","Chiquimula","Jalapa",
+                                                             "Jutiapa"))) %>%
+  mutate(color_veh = mapvalues(color_veh, from=c(1:17,99), to=c("Rojo", "Blanco","Azul", "Gris", "Negro", "Verde", "Amarillo",
+                                                                "Celeste", "Corinto", "Café", "Beige", "Turquesa", "Marfil", "Anaranjado"
+                                                                , "Aqua", "Morado", "Rosado", "Ignorado"))) %>%
+  mutate(modelo_veh = mapvalues(modelo_veh, from = 9999, to = "Ignorado")) %>%
+  mutate(marca_veh = mapvalues(marca_veh, from=99, to="Ignorado")) %>%
+  mutate(mes_ocu = as.numeric(mapvalues(mes_ocu, from=c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                                        "Julio", "Agosto", "Septiembre", "Septiemre", "Octubre",
+                                                        "Noviembre", "Diciembre"),
+                                        to=c(1,2,3,4,5,6,7,8,9,9,10,11,12)))) %>%
+  mutate(lesio_fall = mapvalues(lesio_fall, from = c(1,2), c("Fallecido", "Lesionado"))) %>%
+  mutate(causa_acc = mapvalues(causa_acc, from = c(1, 2, 3, 4, 5), to = c("Colisi?n", "Choque", "Vuelco", "Ca?da", "Atropello")))
+
+##Join between fl and fl17
+fl <- full_join(fl, fl17)
+rm(fl17)
+
+
+#Write final .csv file
+write.csv(fl, file = "Results/fl09_17.csv", row.names = F)
+```
+
 
 Vehiculos Involucrados
 =====================================
-Para el area el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada año se agregaban campos que se pueden calcular , esto los vuelve redundantes.
+Para el area de vehiculos involucrados no fue tan complicada la pulida de datos, pero mas que todo tediosa. Cada año se agregaban campos que se pueden calcular , esto los vuelve redundantes.
 
 Año 2010: se agrego una columna con el año del caso individual
 ```{r}
 #renombrando vi 10
-new10 <- vi10csv
+new10 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/10VI.csv")
+new12 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/12VI.csv")
+new13 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/13VI.csv")
+new14 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/14VI.csv")
+new15 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/15VI.csv")
+new16 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/16VI.csv")
+new17 <- read.csv("https://raw.githubusercontent.com/Rafalp190/DSP1-UVG/master/DataCleanup/Data/17VI.csv")
+
 summary(new10)
 colnames(new10) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","areag_ocu","zona_ocu",
                    "sexo_pil","edad_pil","estado_pil","tipo_veh","color_veh","modelo_veh","causa_acc"
@@ -343,8 +658,7 @@ new10$ano_ocu <- 2010
 Años 2012: Se quita la columna num_vehi ya que es solo un contador innecesario. Se agrega el año de occurencia
 ```{r}
 
-#renombrando vi 12
-new12 <- vi12csv
+
 summary(new12)
 new12$num_vehí <- NULL
 colnames(new12) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","muni_ocu","areag_ocu",
@@ -358,7 +672,7 @@ Años 2013: Se quita la columna num_hecho ya que es solo un contador innecesario
 ```{r}
 
 #renombrando vi 13
-new13 <- vi13csv
+
 summary(new13)
 new13$num_hecho <- NULL
 colnames(new13) <- c("dia_ocu", "mes_ocu","dia_sem_ocu","hora_ocu","depto_ocu","muni_ocu","areag_ocu",
@@ -371,7 +685,7 @@ Años 2014: Se quita la columna num_correlativo y corre_base ya que son innecesa
 ```{r}
 
 #renombrando vi 14
-new14 <- vi14csv
+
 summary(new14)
 new14$num_correlativo <- NULL
 new14$corre_base <- NULL
@@ -385,7 +699,7 @@ Años 2015: Se quita la columna núm_corre, g_hora, g_hora_5,g_edad_60ymás, g_e
 ```{r}
 
 #remombrado vi15
-new15 <- vi15
+
 new15$núm_corre <- NULL
 new15$g_hora <- NULL
 new15$g_hora_5 <- NULL
@@ -404,7 +718,7 @@ Años 2016: Se quita la columna núm_corre, g_hora, g_hora_5,g_edad_60ymás, g_e
 ```{r}
 
 #renombrando vi16
-new16 <- vi16
+
 new16$año_ocu <- NULL
 new16$num_corre <- NULL
 new16$g_hora <- NULL
@@ -424,7 +738,7 @@ Años 2017: Se quita la columna núm_corre, g_hora, g_hora_5,g_edad_60ymás, g_e
 ```{r}
 
 #renombrando vi17
-new17 <- vi17
+
 new17$año_ocu <- NULL
 new17$núm_corre <- NULL
 new17$g_hora <- NULL
@@ -445,28 +759,99 @@ new17$ano_ocu <- 2017
 Se arreglan el tipo de de columas para que el full merge funcione
 ```{r}
 
-
+#fixing types
 #fixing types
 new10$zona_ocu <- as.numeric(new10$zona_ocu)
 new12$zona_ocu <- as.numeric(new12$zona_ocu)
-new10$edad_pil <- as.numeric(new10$zona_ocu)
-new12$edad_pil <- as.numeric(new12$zona_ocu)
-new10$modelo_veh <- as.numeric(new10$zona_ocu)
-new12$modelo_veh <- as.numeric(new12$zona_ocu)
-anos_2010_2012$zona_ocu <- as.numeric(anos_2010_2012$zona_ocu)
-anos_2013_2014$zona_ocu <- as.numeric(anos_2013_2014$zona_ocu)
-anos_2010_2012$edad_pil <- as.numeric(anos_2010_2012$zona_ocu)
-anos_2013_2014$edad_pil <- as.numeric(anos_2013_2014$zona_ocu)
-anos_2010_2012$modelo_veh <- as.character(anos_2010_2012$zona_ocu)
-anos_2013_2014$modelo_veh <- as.character(anos_2013_2014$zona_ocu)
+new10$edad_pil <- as.numeric(new10$edad_pil)
+new12$edad_pil <- as.numeric(new12$edad_pil)
+new10$modelo_veh <- as.numeric(new10$modelo_veh)
+new12$modelo_veh <- as.numeric(new12$modelo_veh)
+
 
 #merging 
-anos_2010_2012 <- full_join(new10,new12)
-anos_2013_2014 <- full_join(new13,new14)
-anos_2015_2016 <- full_join(new15,new16)
-anos_2015_2017 <- full_join(anos_2015_2016,new17)
-anos_2010_2014 <- full_join(anos_2010_2012,anos_2013_2014)
-write.csv(anos_2010_2017, "Results/VI10_17.csv", row.names = F)
+vi <- full_join(new10,new12)
+vi$zona_ocu <- as.factor(vi$zona_ocu)
+new13$zona_ocu <- as.factor(new13$zona_ocu)
+vi$edad_pil <- as.factor(vi$edad_pil)
+new13$edad_pil <- as.factor(new13$edad_pil)
+vi$modelo_veh <- as.factor(vi$modelo_veh)
+new13$modelo_veh <- as.factor(new13$mode)
+
+
+vi <- full_join(vi, new13)
+vi <- full_join(vi, new14)
+vi$mes_ocu <- as.character(vi$mes_ocu)
+new15$mes_ocu <- as.character(new15$mes_ocu)
+vi$dia_sem_ocu <- as.character(vi$dia_sem_ocu)
+new15$dia_sem_ocu <- as.character(new15$dia_sem_ocu)
+vi$depto_ocu <- as.character(vi$depto_ocu)
+new15$depto_ocu <- as.character(new15$depto_ocu)
+vi$areag_ocu <- as.character(vi$areag_ocu)
+new15$areag_ocu <- as.character(new15$areag_ocu)
+vi$zona_ocu <- as.character(vi$zona_ocu)
+new15$zona_ocu <- as.character(new15$zona_ocu)
+vi$sexo_pil <- as.factor(vi$sexo_pil)
+new15$sexo_pil <- as.factor(new15$sexo_pil)
+vi$edad_pil <- as.numeric(vi$edad_pil)
+new15$edad_pil <- as.numeric(new15$edad_pil)
+vi$estado_pil <- as.character(vi$estado_pil)
+new15$estado_pil <- as.character(new15$estado_pil)
+vi$tipo_veh <- as.character(vi$tipo_veh)
+new15$tipo_veh <- as.character(new15$tipo_veh)
+vi$color_veh <- as.character(vi$color_veh)
+new15$color_veh <- as.character(new15$color_veh)
+vi$modelo_veh <- as.character(vi$modelo_veh)
+new15$modelo_veh <- as.character(new15$modelo_veh)
+vi$causa_acc <- as.character(vi$causa_acc)
+new15$causa_acc <- as.character(new15$causa_acc)
+vi$muni_ocu <- as.character(vi$muni_ocu)
+new15$muni_ocu <- as.character(new15$muni_ocu)
+vi$mayor_men <- as.character(vi$mayor_men)
+new15$mayor_men <- as.character(new15$mayor_men)
+vi$marca_veh <- as.character(vi$marca_veh)
+new15$marca_veh <- as.character(new15$marca_veh)
+
+
+vi <- full_join(vi,new15)
+new16$mes_ocu <- as.character(new16$mes_ocu)
+new16$dia_sem_ocu <- as.character(new16$dia_sem_ocu)
+new16$depto_ocu <- as.character(new16$depto_ocu)
+new16$areag_ocu <- as.character(new16$areag_ocu)
+new16$zona_ocu <- as.character(new16$zona_ocu)
+new16$sexo_pil <- as.factor(new16$sexo_pil)
+new16$edad_pil <- as.numeric(new16$edad_pil)
+new16$estado_pil <- as.character(new16$estado_pil)
+new16$tipo_veh <- as.character(new16$tipo_veh)
+new16$color_veh <- as.character(new16$color_veh)
+new16$modelo_veh <- as.character(new16$modelo_veh)
+new16$causa_acc <- as.character(new16$causa_acc)
+new16$muni_ocu <- as.character(new16$muni_ocu)
+new16$mayor_men <- as.character(new16$mayor_men)
+new16$marca_veh <- as.character(new16$marca_veh)
+
+vi <- full_join(vi, new16)
+new17$mes_ocu <- as.character(new17$mes_ocu)
+new17$dia_sem_ocu <- as.character(new17$dia_sem_ocu)
+new17$depto_ocu <- as.character(new17$depto_ocu)
+new17$zona_ocu <- as.character(new17$zona_ocu)
+new17$sexo_pil <- as.factor(new17$sexo_pil)
+new17$edad_pil <- as.numeric(new17$edad_pil)
+new17$estado_pil <- as.character(new17$estado_pil)
+new17$tipo_veh <- as.character(new17$tipo_veh)
+new17$color_veh <- as.character(new17$color_veh)
+new17$modelo_veh <- as.character(new17$modelo_veh)
+new17$causa_acc <- as.character(new17$causa_acc)
+new17$muni_ocu <- as.character(new17$muni_ocu)
+new17$mayor_men <- as.character(new17$mayor_men)
+new17$marca_veh <- as.character(new17$marca_veh)
+
+vi <- full_join(vi, new17)
+
+
+
+
+write.csv(vi, "Results/vi10_17.csv", row.names = F)
 
 ```
 
